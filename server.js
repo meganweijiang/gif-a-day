@@ -11,6 +11,8 @@ const templateNew = './templates/new.html';
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'client/build')));
+
 require('dotenv').config();
 
 readTemplate = (path) => {
@@ -122,7 +124,7 @@ app.post('/api/update', (req, res) => {
     });
 });
 
-app.get('/api/ubsubscribe/:id', (req, res) => {
+app.get('/api/unsubscribe/:id', (req, res) => { 
   database.ref(`emails/${req.params.id}/active`).set(0)
     .then(() => {
       return res.send(true)

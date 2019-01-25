@@ -63,6 +63,7 @@ span {
 
 a {
   color: #999999;
+  font-weight: bold;
 }
 
 a:hover {
@@ -73,7 +74,7 @@ form {
   padding: 0 0 70px 0;
 }
 
-#submitted {
+#submitted, #message {
   display: block;
   height: 50px;
 }
@@ -89,5 +90,13 @@ form {
   position: absolute;
   right: 0;
   bottom: 0;
-  padding: 0 20px;
+  padding: 20px;
+}
+
+.go-home {
+  font-size: 12px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding: 20px;
 }

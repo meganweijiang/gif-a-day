@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import '../styles/App.css';
 import Form from './Form';
 import Content from './Content';
+import { Link } from 'react-router-dom';
 
 class App extends Component {
   render() {
@@ -13,7 +14,7 @@ class App extends Component {
           </header>
           <Content/>
           <Form/>
-          <p className="unsub">Need to <a href="/unsubscribe">unsubscribe</a>?</p>
+          <p className="unsub">Need to <Link to="/unsubscribe">unsubscribe</Link>?</p>
         </div>
       </div>
     );
