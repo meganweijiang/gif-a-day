@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const path = require('path');
 const app = express();
 const port = process.env.PORT || 5000;
 const firebase = require('firebase');
@@ -121,14 +122,23 @@ app.post('/api/update', (req, res) => {
     });
 });
 
-app.post('/api/ubsub', (req, res) => {
-  database.ref(`emails/${req.body.key}/active`).set(0)
+app.get('/api/ubsubscribe/:id', (req, res) => {
+  database.ref(`emails/${req.params.id}/active`).set(0)
     .then(() => {
       return res.send(true)
     })
     .catch(err => {
       throw err;
     });
-})
+});
+
+if (process.env.NODE_ENV === 'production') {
+  // Serve any static files
+  app.use(express.static(path.join(__dirname, 'client/build')));
+  // Handle React routing, return all requests to React app
+  app.get('*', function(req, res) {
+    res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
+  });
+}
 
 app.listen(port, () => console.log(`Listening on port ${port}`));

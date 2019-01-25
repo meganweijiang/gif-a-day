@@ -83,11 +83,11 @@ sendEmails = () => {
                 })
               }
             }) 
-          })       
+          }) 
+            .then(() => {
+              firebase.database().goOffline();
+            })      
         })
-    })
-    .then(() => {
-      firebase.database().goOffline();
     })
     .catch((err) => {
       throw err;
