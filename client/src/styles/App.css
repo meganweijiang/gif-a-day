@@ -10,6 +10,10 @@
   padding: 0 20px;
 }
 
+.container {
+  max-width: 320px;
+}
+
 .clearfix::after {
   content: "";
   clear: both;
@@ -22,7 +26,7 @@ h1 {
 }
 
 input {
-  width: 320px;
+  width: 300px;
   height: 20px;
   border: none;
 }
@@ -37,6 +41,14 @@ button {
   margin: 20px 0;
   float: right;
   border-radius: 10px;
+  cursor: pointer;
+}
+
+button:disabled,
+button[disabled]{
+  background-color: #999999;
+  curson: not-allowed;
+  pointer-events:none;
 }
 
 button:hover {
@@ -46,6 +58,24 @@ button:hover {
 span {
   padding: 10px;
   display: inline-block;
+  float: left;
+}
+
+a {
+  color: #999999;
+}
+
+a:hover {
+  color: #ffffff;
+}
+
+form {
+  padding: 0 0 70px 0;
+}
+
+#submitted {
+  display: block;
+  height: 50px;
 }
 
 #loading {
@@ -54,8 +84,10 @@ span {
   height: auto;
 }
 
-@media (max-width: 767px) {
-  input {
-    width: 300px;
-  }
+.unsub {
+  font-size: 12px;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  padding: 0 20px;
 }

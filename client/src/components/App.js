@@ -7,7 +7,7 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        <div class="container">
+        <div className="container">
           <header className="App-header">
             <h1>Cat GIF a Day</h1>
           </header>

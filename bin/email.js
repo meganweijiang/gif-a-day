@@ -71,7 +71,7 @@ sendEmails = () => {
                 const mailOptions = {
                   from: 'Cat GIF a Day <donotreply@catgifaday.com>',
                   to: emailAddress,
-                  subject: 'Welcome to Cat GIF a Day!',
+                  subject: "Here's your daily cat GIF",
                   html: htmlToSend
                 };
                 transporter.sendMail(mailOptions, function(error, info){
@@ -86,9 +86,13 @@ sendEmails = () => {
           })       
         })
     })
+    .then(() => {
+      firebase.database().goOffline();
+    })
     .catch((err) => {
       throw err;
     })
 }
 
 sendEmails()
+

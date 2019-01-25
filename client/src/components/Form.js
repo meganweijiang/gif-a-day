@@ -1,14 +1,23 @@
 import React, { Component } from 'react';
-import database from '../firebase/firebase';
-import loading from '../images/loading.gif';
+import loading from '../images/loader.gif';
 
 class Form extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      text: ''
+      text: '',
+      timeout: null
     };
   };
+
+  updateTimeout = () => {
+    const text = document.getElementById('submitted');
+    window.clearTimeout(this.state.timeout);
+    let timeout = window.setTimeout(() => {
+      text.innerHTML = "";
+    }, 5000)
+    this.setState({ timeout });
+  }
 
   // emailExists = (email) => {
   //   return new Promise((resolve, reject) => {
@@ -72,9 +81,7 @@ class Form extends Component {
       const active = existsRes[key].active;
       if (active === 1) {
         text.innerHTML = "Email address is already on the mailing list and active."
-        setTimeout(() => {
-          text.innerHTML = "";
-        }, 5000);
+        this.updateTimeout();
       }
       else {
         const update = await fetch('/api/update', {
@@ -86,10 +93,8 @@ class Form extends Component {
         })
         if (update) {
           document.getElementById('email').value = '';
-            text.innerHTML = "Welcome back to the mailing list!"
-            setTimeout(() => {
-              text.innerHTML = "";
-          }, 5000)
+          text.innerHTML = "Welcome back to the mailing list!"
+          this.updateTimeout();
         }
       }
     }
@@ -103,10 +108,8 @@ class Form extends Component {
       })
       if (add) {
         document.getElementById('email').value = '';
-          text.innerHTML = "Email address has been added to the mailing list!"
-          setTimeout(() => {
-            text.innerHTML = "";
-        }, 5000)
+        text.innerHTML = "Email address has been added to the mailing list!"
+        this.updateTimeout();
       }
     }
     document.getElementById('loading').style.visibility = 'hidden';
@@ -116,10 +119,10 @@ class Form extends Component {
     return (
       <div>
         <form onSubmit={this.onSubmit}>
-          <span class="clearfix">Email Address</span>
+          <span className="clearfix">Email Address</span>
           <input id="email" type="email" name="email" value={this.state.text} onChange={this.handleChange}/>
           <br/>
-          <button class="clearfix" disabled={!this.state.text}>Submit</button>
+          <button className="clearfix" disabled={!this.state.text}>Submit</button>
         </form>
         <p id="submitted"></p>
         <img id="loading" src={loading} alt=""/>
