@@ -3,11 +3,52 @@ const bodyParser = require('body-parser');
 const app = express();
 const port = process.env.PORT || 5000;
 const firebase = require('firebase');
+const nodemailer = require('nodemailer');
+const handlebars = require('handlebars');
+const fs = require('fs');
+const templateNew = './templates/new.html';
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 require('dotenv').config();
 
-var config = {
+readTemplate = (path) => {
+  console.log('reading template')
+  return new Promise((resolve, reject) => {
+    fs.readFile(path, {encoding: 'utf-8'}, (err, html) => {
+      if (err) {
+        reject(err);
+      }
+      else {
+        resolve(html);
+      }
+    });
+  }) 
+}
+
+getGif = () => {
+  return new Promise((resolve, reject) => {
+    fetch(`https://api.giphy.com/v1/gifs/random?tag=cat&api_key=${process.env.GIPHY_API_KEY}`)
+    .then(response => response.json())
+    .then(body => {
+      url = body.data.images.original.url;
+      resolve(url);
+    })
+    .catch(err => {
+      reject(err);
+    });
+  })
+}
+
+const transporter = nodemailer.createTransport({
+  service: process.env.EMAIL_SERVICE,
+  auth: {
+    user: process.env.EMAIL_ADDRESS,
+    pass: process.env.EMAIL_PASS
+  }
+});
+
+const config = {
   apiKey: process.env.API_KEY,
   authDomain: process.env.AUTH_DOMAIN,
   databaseURL: process.env.DATABASE_URL,
@@ -25,23 +66,48 @@ app.post('/api/add', (req, res) => {
     active: 1
   })
   .then(() => {
+    getGif()
+    .then((gif) => {
+      readTemplate(templateNew)
+      .then((res) => {
+        const email = handlebars.compile(res);
+        const replacements = {
+          gif: gif
+        }
+        const htmlToSend = email(replacements);
+        const mailOptions = {
+          from: 'megan.weijiang@gmail.com',
+          to: 'meganweijiang@yahoo.com',
+          subject: 'Sending Email using Node.js',
+          html: htmlToSend
+        };
+        transporter.sendMail(mailOptions, function(error, info){
+          if (error) {
+            console.log(error);
+          } else {
+            console.log('Email sent: ' + info.response);
+          }
+        })
+      })
+    })
+  })
+  .then(() => {
     return res.send(true)
   })
-  .catch(e => {
-    throw new Error (e);
+  .catch(err => {
+    throw err;
   });
 });
 
 app.post('/api/exists', (req, res) => {
-  console.log(req.body.email);
   database.ref('emails').orderByChild('email').equalTo(req.body.email).once("value", snapshot => {
     if (snapshot.val() !== null) {
       return res.send(snapshot.val());
     }
     return res.send(false);
   })
-  .catch(e => {
-    throw new Error (e);
+  .catch(err => {
+    throw err;
   })
 });
 
@@ -50,9 +116,19 @@ app.post('/api/update', (req, res) => {
   .then(() => {
     return res.send(true)
   })
-  .catch(e => {
-    throw new Error (e);
+  .catch(err => {
+    throw err;
   });
 });
+
+app.post('/api/ubsub', (req, res) => {
+  database.ref(`emails/${req.body.key}/active`).set(0)
+  .then(() => {
+    return res.send(true)
+  })
+  .catch(err => {
+    throw err;
+  });
+})
 
 app.listen(port, () => console.log(`Listening on port ${port}`));
