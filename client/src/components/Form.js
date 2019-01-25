@@ -116,8 +116,10 @@ class Form extends Component {
     return (
       <div>
         <form onSubmit={this.onSubmit}>
-          Email Address: <input id="email" type="email" name="email" value={this.state.text} onChange={this.handleChange}/>
-          <button disabled={!this.state.text}>Submit</button>
+          <span class="clearfix">Email Address</span>
+          <input id="email" type="email" name="email" value={this.state.text} onChange={this.handleChange}/>
+          <br/>
+          <button class="clearfix" disabled={!this.state.text}>Submit</button>
         </form>
         <p id="submitted"></p>
         <img id="loading" src={loading} alt=""/>

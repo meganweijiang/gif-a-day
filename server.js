@@ -29,14 +29,14 @@ readTemplate = (path) => {
 getGif = () => {
   return new Promise((resolve, reject) => {
     fetch(`https://api.giphy.com/v1/gifs/random?tag=cat&api_key=${process.env.GIPHY_API_KEY}`)
-    .then(response => response.json())
-    .then(body => {
-      url = body.data.images.original.url;
-      resolve(url);
-    })
-    .catch(err => {
-      reject(err);
-    });
+      .then(response => response.json())
+      .then(body => {
+        const url = body.data.images.original.url;
+        resolve(url);
+      })
+      .catch(err => {
+        reject(err);
+      });
   })
 }
 
@@ -65,38 +65,38 @@ app.post('/api/add', (req, res) => {
     email: req.body.email,
     active: 1
   })
-  .then(() => {
-    getGif()
-    .then((gif) => {
-      readTemplate(templateNew)
-      .then((res) => {
-        const email = handlebars.compile(res);
-        const replacements = {
-          gif: gif
-        }
-        const htmlToSend = email(replacements);
-        const mailOptions = {
-          from: 'megan.weijiang@gmail.com',
-          to: 'meganweijiang@yahoo.com',
-          subject: 'Sending Email using Node.js',
-          html: htmlToSend
-        };
-        transporter.sendMail(mailOptions, function(error, info){
-          if (error) {
-            console.log(error);
-          } else {
-            console.log('Email sent: ' + info.response);
+    .then(() => {
+      getGif()
+      .then((gif) => {
+        readTemplate(templateNew)
+        .then((res) => {
+          const email = handlebars.compile(res);
+          const replacements = {
+            gif: gif
           }
+          const htmlToSend = email(replacements);
+          const mailOptions = {
+            from: 'Cat GIF a Day <donotreply@catgifaday.com>',
+            to: req.body.email,
+            subject: 'Welcome to Cat GIF a Day!',
+            html: htmlToSend
+          };
+          transporter.sendMail(mailOptions, function(error, info){
+            if (error) {
+              console.log(error);
+            } else {
+              console.log('Email sent: ' + info.response);
+            }
+          })
         })
       })
     })
-  })
-  .then(() => {
-    return res.send(true)
-  })
-  .catch(err => {
-    throw err;
-  });
+    .then(() => {
+      return res.send(true)
+    })
+    .catch(err => {
+      throw err;
+    });
 });
 
 app.post('/api/exists', (req, res) => {
@@ -106,29 +106,29 @@ app.post('/api/exists', (req, res) => {
     }
     return res.send(false);
   })
-  .catch(err => {
-    throw err;
-  })
+    .catch(err => {
+      throw err;
+    })
 });
 
 app.post('/api/update', (req, res) => {
   database.ref(`emails/${req.body.key}/active`).set(1)
-  .then(() => {
-    return res.send(true)
-  })
-  .catch(err => {
-    throw err;
-  });
+    .then(() => {
+      return res.send(true)
+    })
+    .catch(err => {
+      throw err;
+    });
 });
 
 app.post('/api/ubsub', (req, res) => {
   database.ref(`emails/${req.body.key}/active`).set(0)
-  .then(() => {
-    return res.send(true)
-  })
-  .catch(err => {
-    throw err;
-  });
+    .then(() => {
+      return res.send(true)
+    })
+    .catch(err => {
+      throw err;
+    });
 })
 
 app.listen(port, () => console.log(`Listening on port ${port}`));
