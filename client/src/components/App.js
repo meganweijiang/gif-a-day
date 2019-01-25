@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import '../styles/App.css';
+import Form from './Form';
 
 class App extends Component {
   render() {
@@ -8,6 +9,7 @@ class App extends Component {
         <header className="App-header">
           <h1>Cat GIF a Day</h1>
         </header>
+        <Form/>
       </div>
     );
   }
