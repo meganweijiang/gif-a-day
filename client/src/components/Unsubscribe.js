@@ -61,19 +61,23 @@ class Unsubscribe extends Component {
 
   render() {
     return (
-      <div className="App">
-        <div className="container">
+      <div className="outer">
+        <div className="flex-wrap-start">
           <Link className="go-home" to="/">&#8592; Go Home</Link>
-          <header className="App-header">
-            <h1>Unsubscribe</h1>
-          </header>
-          <form onSubmit={this.onSubmit}>
-            <span className="clearfix">Email Address</span>
-            <input id="emailUnsub" type="email" name="email" value={this.state.text} onChange={this.handleChange}/>
-            <br/>
-            <button className="clearfix" disabled={!this.state.text}>Submit</button>
-          </form>
-          <p id="message"></p>
+        </div>
+        <div className="App">
+          <div className="container">
+            <header className="App-header">
+              <h1>Unsubscribe</h1>
+            </header>
+            <form onSubmit={this.onSubmit}>
+              <span className="clearfix">Email Address</span>
+              <input id="emailUnsub" type="email" name="email" value={this.state.text} onChange={this.handleChange}/>
+              <br/>
+              <button className="clearfix" disabled={!this.state.text}>Submit</button>
+            </form>
+            <p id="message"></p>
+          </div>
         </div>
       </div>
     );
