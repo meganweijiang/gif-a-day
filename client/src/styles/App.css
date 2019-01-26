@@ -20,6 +20,12 @@
   display: table;
 }
 
+img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
 h1 {
   margin: 0;
   padding: 20px 0;
