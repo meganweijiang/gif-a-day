@@ -7,20 +7,18 @@ import { Link } from 'react-router-dom';
 class App extends Component {
   render() {
     return (
-      <div className="outer">
-        <div className="flex-wrap-start">
-          <p className="unsub">Need to <Link to="/unsubscribe">unsubscribe</Link>?</p>
-        </div>
-        <div className="App">
+      <div className="App">
+        <div className="outer">
           <div className="container">
             <header className="App-header">
               <h1>Cat GIF a Day</h1>
             </header>
-            <Content/>
+            <Content isHome={true} />
             <Form/>
+            <p className="unsub">Need to <Link to="/unsubscribe">unsubscribe</Link>?</p>
           </div>
         </div>
-    </div>
+      </div>
     );
   }
 }

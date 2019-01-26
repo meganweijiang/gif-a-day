@@ -1,30 +1,17 @@
-html, body {
-  overflow-y:hidden;
+.App {
+  text-align: center;
+  background-color: #042a68;
+  min-height: 100vh;
+  color: white;
+  font-family: Tahoma, Geneva, sans-serif;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
 }
 
 .outer {
-  text-align: center;
-  background-color: #042a68;
-  height: 100vh;
-  color: white;
-  font-family: Tahoma, Geneva, sans-serif;
   padding: 20px;
-}
-
-.flex-wrap-start {
-  display: flex;
-  align-items: flex-start;
-}
-
-.App {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-}
-
-.container {
-  max-width: 320px;
 }
 
 .clearfix::after {
@@ -35,7 +22,7 @@ html, body {
 
 h1 {
   margin: 0;
-  padding: 20px 0;
+  padding: 40px 0;
 }
 
 input {
@@ -91,18 +78,12 @@ form {
   padding: 20px 0 70px 0;
 }
 
-#submitted, #message {
-  display: block;
-  height: 50px;
-}
-
-#loading {
+#message, #loading {
+  padding: 20px 0;
   visibility: hidden;
-  width: 20px;
-  height: auto;
+  height: 20px;
 }
 
-.go-home, .unsub {
+.unsub, .go-home {
   font-size: 12px;
-  margin-right: auto;
 }

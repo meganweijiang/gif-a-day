@@ -8,6 +8,7 @@ const nodemailer = require('nodemailer');
 const handlebars = require('handlebars');
 const fs = require('fs');
 const templateNew = './templates/new.html';
+const crypto = require('crypto');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -43,6 +44,13 @@ getGif = () => {
   })
 }
 
+encrypt = (id) => {
+  const key = crypto.createCipher('aes-128-cbc', process.env.CRYPTO_PW);
+  const str = key.update(id, 'utf8', 'hex')
+  str += key.update.final('hex');
+  return str;
+}
+
 const transporter = nodemailer.createTransport({
   service: process.env.EMAIL_SERVICE,
   auth: {
@@ -64,6 +72,7 @@ firebase.initializeApp(config);
 const database = firebase.database();
 
 app.post('/api/add', (req, res) => {
+  const unsubLink = req.protocol + '://' + req.get('host') + '/unsubscribe';
   database.ref('emails').push({
     email: req.body.email,
     active: 1
@@ -75,7 +84,8 @@ app.post('/api/add', (req, res) => {
         .then((res) => {
           const email = handlebars.compile(res);
           const replacements = {
-            gif: gif
+            gif: gif,
+            unsubLink: unsubLink
           }
           const htmlToSend = email(replacements);
           const mailOptions = {
@@ -132,6 +142,23 @@ app.get('/api/unsubscribe/:id', (req, res) => {
     .catch(err => {
       throw err;
     });
+});
+
+app.post('/api/decrypt', (req, res) => {
+  try {
+    const key = crypto.createDecipher('aes-128-cbc', process.env.CRYPTO_PW);
+    const decrypted = key.update(req.body.id, 'hex', 'utf8')
+    decrypted += key.update.final('utf8');
+    database.ref(`emails/${mystr}/active`).set(0)
+      .then(() => {
+        return res.send(true)
+      })
+      .catch(err => {
+        throw err;
+      });
+  } catch (err) {
+    throw err;
+  }
 });
 
 if (process.env.NODE_ENV === 'production') {

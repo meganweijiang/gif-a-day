@@ -6,54 +6,20 @@ class Form extends Component {
     super(props);
     this.state = {
       text: '',
-      timeout: null
+      timeout: null,
+      message: ''
     };
   };
 
   updateTimeout = () => {
-    const text = document.getElementById('submitted');
+    const text = document.getElementById('message');
     window.clearTimeout(this.state.timeout);
+    text.style.visibility = 'visible';
     let timeout = window.setTimeout(() => {
-      text.innerHTML = "";
+      text.style.visibility = 'hidden';
     }, 5000)
     this.setState({ timeout });
   }
-
-  // emailExists = (email) => {
-  //   return new Promise((resolve, reject) => {
-  //     database.ref('emails').orderByChild('email').equalTo(email).once("value", snapshot => {
-  //       if (snapshot.val() !== null) {
-  //         resolve(snapshot.val());
-  //       }
-  //       resolve(false);
-  //     })
-  //   })
-  // };
-
-  // addEmail = (email) => {
-  //   return new Promise((resolve, reject) => {
-  //     database.ref('emails').push({
-  //       email: email,
-  //       active: 1
-  //     })
-  //     .then(() => resolve(true))
-  //     .catch(e => {
-  //       console.log("Error: ", e)
-  //       reject();
-  //     });
-  //   })
-  // };
-
-  // updateEmail = (email, key) => {
-  //   return new Promise((resolve, reject) => {
-  //     database.ref(`emails/${key}/active`).set(1)
-  //     .then(() => resolve(true))
-  //     .catch(e => {
-  //       console.log("Error: ", e)
-  //       reject();
-  //     });
-  //   })
-  // };
 
   handleChange = (e) => {
     this.setState({ text: e.target.value })
@@ -63,7 +29,6 @@ class Form extends Component {
     e.preventDefault();
     document.getElementById('loading').style.visibility = 'visible';
     const email = document.getElementById('email').value;
-    const text = document.getElementById('submitted');
     const exists = await fetch('/api/exists', {
       method: 'POST',
       headers: {
@@ -72,6 +37,7 @@ class Form extends Component {
       body: JSON.stringify({ email: email })
     })
     let existsRes = await exists.text();
+    console.log(existsRes);
     existsRes = JSON.parse(existsRes);
     if (existsRes) {
       let key = ""
@@ -80,7 +46,7 @@ class Form extends Component {
       }
       const active = existsRes[key].active;
       if (active === 1) {
-        text.innerHTML = "Email address is already on the mailing list and active."
+        this.setState({ message: "Email address is already on the mailing list and active." });
         this.updateTimeout();
       }
       else {
@@ -93,7 +59,7 @@ class Form extends Component {
         })
         if (update) {
           document.getElementById('email').value = '';
-          text.innerHTML = "Welcome back to the mailing list!"
+          this.setState({ message: "Welcome back to the mailing list!" });
           this.updateTimeout();
         }
       }
@@ -108,7 +74,7 @@ class Form extends Component {
       })
       if (add) {
         document.getElementById('email').value = '';
-        text.innerHTML = "Email address has been added to the mailing list!"
+        this.setState({ message: "Email address has been added to the mailing list!" });
         this.updateTimeout();
       }
     }
@@ -124,7 +90,7 @@ class Form extends Component {
           <br/>
           <button className="clearfix" disabled={!this.state.text}>Submit</button>
         </form>
-        <p id="submitted"></p>
+        <p id="message">{this.state.message}</p>
         <img id="loading" src={loading} alt=""/>
       </div>
     )
