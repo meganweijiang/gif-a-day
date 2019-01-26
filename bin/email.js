@@ -1,37 +1,12 @@
-const nodemailer = require('nodemailer');
 const handlebars = require('handlebars');
-const firebase = require('firebase');
-const fs = require('fs');
 const templateDaily = '../templates/daily.html';
+const util =  require('../utility/util');
+// const firebase = require('../utility/firebase');
+// const emailer = require('../utility/emailer');
+const firebase = require('firebase');
+const nodemailer = require('nodemailer');
 
 require('dotenv').config({ path: '../.env' });
-
-readTemplate = (path) => {
-  return new Promise((resolve, reject) => {
-    fs.readFile(path, {encoding: 'utf-8'}, (err, html) => {
-      if (err) {
-        reject(err);
-      }
-      else {
-        resolve(html);
-      }
-    });
-  }) 
-}
-
-getGif = () => {
-  return new Promise((resolve, reject) => {
-    fetch(`https://api.giphy.com/v1/gifs/random?tag=cat&api_key=${process.env.GIPHY_API_KEY}`)
-    .then(response => response.json())
-    .then(body => {
-      const url = body.data.images.original.url;
-      resolve(url);
-    })
-    .catch(err => {
-      reject(err);
-    });
-  })
-}
 
 const transporter = nodemailer.createTransport({
   service: process.env.EMAIL_SERVICE,
@@ -54,34 +29,33 @@ firebase.initializeApp(config);
 const database = firebase.database();
 
 sendEmails = () => {
-  getGif()
+  const unsubLink = process.env.UNSUB_LINK;
+  util.getGif()
     .then((gif) => {
-      readTemplate(templateDaily)
+      util.readTemplate(templateDaily)
         .then((res) => {
           const email = handlebars.compile(res);
           const replacements = {
-            gif: gif
+            gif,
+            unsubLink
           }
           const htmlToSend = email(replacements);
-          database.ref('emails').once("value", snapshot => {
+          database.ref('emails').orderByChild('active').equalTo(1).once("value", snapshot => {
             snapshot.forEach(email => {
               let emailAddress = email.val().email;
-              let active = email.val().active;
-              if (active === 1) {
-                const mailOptions = {
-                  from: 'Cat GIF a Day <donotreply@catgifaday.com>',
-                  to: emailAddress,
-                  subject: "Here's your daily cat GIF",
-                  html: htmlToSend
-                };
-                transporter.sendMail(mailOptions, function(error, info){
-                  if (error) {
-                    console.log(error);
-                  } else {
-                    console.log('Email sent: ' + info.response);
-                  }
-                })
-              }
+              const mailOptions = {
+                from: 'Cat GIF a Day <donotreply@catgifaday.com>',
+                to: emailAddress,
+                subject: "Here's your daily cat GIF",
+                html: htmlToSend
+              };
+              transporter.sendMail(mailOptions, function(error, info){
+                if (error) {
+                  console.log(error);
+                } else {
+                  console.log('Email sent: ' + info.response);
+                }
+              })
             }) 
           }) 
             .then(() => {
