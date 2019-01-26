@@ -22,7 +22,7 @@
 
 h1 {
   margin: 0;
-  padding: 40px 0;
+  padding: 20px 0;
 }
 
 input {
@@ -32,9 +32,9 @@ input {
 }
 
 button {
-  background: #333333;
+  background: #7ba9f2;
   border: none;
-  color: white;
+  color: #042a68;
   padding: 10px;
   font-size: 20px;
   font-weight: bold;
@@ -47,12 +47,12 @@ button {
 button:disabled,
 button[disabled]{
   background-color: #999999;
-  curson: not-allowed;
+  cursor: not-allowed;
   pointer-events:none;
 }
 
 button:hover {
-  background: #222222;
+  background: #ccdfff;
 }
 
 span {

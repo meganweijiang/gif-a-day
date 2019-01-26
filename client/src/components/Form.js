@@ -34,7 +34,7 @@ class Form extends Component {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ email: email })
+      body: JSON.stringify({ email })
     })
     let existsRes = await exists.text();
     console.log(existsRes);
@@ -55,7 +55,7 @@ class Form extends Component {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ key: key })
+          body: JSON.stringify({ key })
         })
         if (update) {
           document.getElementById('email').value = '';
@@ -70,7 +70,7 @@ class Form extends Component {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email: email })
+        body: JSON.stringify({ email })
       })
       if (add) {
         document.getElementById('email').value = '';

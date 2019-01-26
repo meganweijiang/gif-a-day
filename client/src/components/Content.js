@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
+import cat from '../images/main.gif';
 
 class Content extends Component {
   render() {
     return (
-      <div>
+      <div className="content">
+        <img src={cat} alt="" />
         { this.props.isHome ? 
           (<p>Love cats? Sign up for the mailing list and get a cat GIF sent to you daily at 8 am CT.</p>) 
           : 

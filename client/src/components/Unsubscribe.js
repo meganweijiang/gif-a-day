@@ -36,7 +36,7 @@ class Unsubscribe extends Component {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ email: email })
+      body: JSON.stringify({ email })
     })
     let existsRes = await exists.text();
     existsRes = JSON.parse(existsRes);
@@ -70,7 +70,6 @@ class Unsubscribe extends Component {
       <div className="App">
         <div className="outer">
           <div className="container">
-            <Link className="go-home" to="/">&#8592; Go Home</Link>
             <header className="App-header">
               <h1>Unsubscribe</h1>
             </header>
@@ -83,6 +82,7 @@ class Unsubscribe extends Component {
             </form>
             <p id="message">{this.state.message}</p>
             <img id="loading" src={loading} alt=""/>
+            <Link className="go-home" to="/">&#8592; Go Home</Link>
           </div>
         </div>
       </div>

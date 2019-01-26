@@ -38,7 +38,7 @@ encrypt = (id) => {
 
 decrypt = (id) => {
   const key = crypto.createDecipher('aes-128-cbc', process.env.CRYPTO_PW);
-  const decrypted = key.update(req.body.id, 'hex', 'utf8')
+  const decrypted = key.update(id, 'hex', 'utf8')
   decrypted += key.update.final('utf8');
   return decrypted;
 }
