@@ -40,10 +40,7 @@ class Form extends Component {
     console.log(existsRes);
     existsRes = JSON.parse(existsRes);
     if (existsRes) {
-      let key = ""
-      for (let k in existsRes) {
-        key = k;
-      }
+      const key = Object.keys(existsRes)[0];
       const active = existsRes[key].active;
       if (active === 1) {
         this.setState({ message: "Email address is already on the mailing list and active." });
