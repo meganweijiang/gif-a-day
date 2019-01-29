@@ -26,21 +26,30 @@ firebase.initializeApp(config);
 
 const database = firebase.database();
 
+const keys = [];
+const gifs = {};
+
+getGifs = async (keys) => {
+  for (let item of keys) {
+    let gif = await util.getGif(item);
+    gifs[item] = gif;
+  }
+}
 sendEmails = async () => {
   const unsubLink = process.env.UNSUB_LINK;
-  const catGif = await util.getGif('cat');
-  const dogGif = await util.getGif('dog');
+  await database.ref('options').once("value", snapshot => {
+    snapshot.forEach(option => {
+      keys.push(option.key);
+    })
+  });
+  await getGifs(keys);
   util.readTemplate(templateDaily)
     .then((res) => {
       database.ref('emails').orderByChild('active').equalTo(1).once("value", snapshot => {
         snapshot.forEach(email => {
           const emailAddress = email.val().email;
           const type = email.val().type;
-
-          let gif = catGif;
-          if (type === 'dog') {
-            gif = dogGif;
-          }
+          const gif = gifs[type];
 
           const emailTemp = handlebars.compile(res);
           const replacements = {

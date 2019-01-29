@@ -2,7 +2,7 @@ const crypto = require('crypto');
 const fs = require('fs');
 
 readTemplate = (path) => {
-  console.log('reading template')
+  console.log('Reading template')
   return new Promise((resolve, reject) => {
     fs.readFile(path, {encoding: 'utf-8'}, (err, html) => {
       if (err) {
@@ -16,6 +16,7 @@ readTemplate = (path) => {
 }
 
 getGif = (type) => {
+  console.log(`Getting GIF for ${type}`);
   return new Promise((resolve, reject) => {
     fetch(`https://api.giphy.com/v1/gifs/random?tag=${type}&api_key=${process.env.GIPHY_API_KEY}`)
       .then(response => response.json())

@@ -30,15 +30,8 @@ class Form extends Component {
     document.getElementById('loading').style.visibility = 'visible';
     const email = document.getElementById('email').value;
     const type = document.getElementById('option-select').value;
-    const exists = await fetch('/api/exists', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email })
-    })
-    let existsRes = await exists.text();
-    existsRes = JSON.parse(existsRes);
+    const exists = await fetch(`/api/exists/${email}`);
+    const existsRes = await exists.json();
     if (existsRes) {
       const key = Object.keys(existsRes)[0];
       const active = existsRes[key].active;
@@ -99,13 +92,13 @@ class Form extends Component {
     return (
       <div>
         <form onSubmit={this.onSubmit}>
-          <div class="select-container">
-            <span class="select-text">I would like a&nbsp;</span>
+          <div className="select-container">
+            <span className="select-text">I would like a&nbsp;</span>
             <select id="option-select">
-              <option value="cat">Cat</option>
-              <option value="dog">Dog</option>
+              <option value="cat">cat</option>
+              <option value="dog">dog</option>
             </select>
-            <span class="select-text">&nbsp;GIF everyday.</span>
+            <span className="select-text">&nbsp;GIF everyday.</span>
           </div>
           <span className="clearfix">Email Address</span>
           <input id="email" type="email" name="email" value={this.state.text} onChange={this.handleChange}/>

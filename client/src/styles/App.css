@@ -41,7 +41,7 @@ input {
 
 select {
   border: none;
-  width: 100px;
+  width: 80px;
   background-color: #ccdfff;
   height: 20px;
   display: inline;
@@ -95,6 +95,7 @@ form {
 }
 
 #message {
+  height: 20px;
   padding: 20px 0;
   visibility: hidden;
 }

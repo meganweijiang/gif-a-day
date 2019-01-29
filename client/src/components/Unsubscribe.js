@@ -31,23 +31,19 @@ class Unsubscribe extends Component {
     e.preventDefault();
     document.getElementById('loading').style.visibility = 'visible';
     const email = document.getElementById('emailUnsub').value;
-    const exists = await fetch('/api/exists', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email })
-    })
-    let existsRes = await exists.text();
-    existsRes = JSON.parse(existsRes);
+    const exists = await fetch(`/api/exists/${email}`);
+    const existsRes = await exists.json();
     if (existsRes) {
-      let key = ""
-      for (let k in existsRes) {
-        key = k;
-      }
+      let key = Object.keys(existsRes)[0];
       let active = existsRes[key].active;
       if (active) {
-        const unsub = await fetch(`/api/unsubscribe/${key}`);
+        const unsub = await fetch(`/api/unsubscribe`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ key })
+        });
         if (unsub) {
           this.setState({ message: "Email address has been unsubscribed." });
           this.updateTimeout();
