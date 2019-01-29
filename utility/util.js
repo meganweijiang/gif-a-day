@@ -15,9 +15,9 @@ readTemplate = (path) => {
   }) 
 }
 
-getGif = () => {
+getGif = (type) => {
   return new Promise((resolve, reject) => {
-    fetch(`https://api.giphy.com/v1/gifs/random?tag=cat&api_key=${process.env.GIPHY_API_KEY}`)
+    fetch(`https://api.giphy.com/v1/gifs/random?tag=${type}&api_key=${process.env.GIPHY_API_KEY}`)
       .then(response => response.json())
       .then(body => {
         const url = body.data.images.original.url;

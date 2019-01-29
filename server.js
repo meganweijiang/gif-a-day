@@ -19,25 +19,28 @@ require('dotenv').config();
 
 app.post('/api/add', (req, res) => {
   const unsubLink = process.env.UNSUB_LINK;
+  const type = req.body.type;
   firebase.database.ref('emails').push({
     email: req.body.email,
-    active: 1
+    active: 1,
+    type: req.body.type
   })
     .then(() => {
-      util.getGif()
+      util.getGif(type)
       .then((gif) => {
         util.readTemplate(templateNew)
         .then((res) => {
           const email = handlebars.compile(res);
           const replacements = {
             gif,
-            unsubLink
+            unsubLink,
+            type
           }
           const htmlToSend = email(replacements);
           const mailOptions = {
-            from: 'Cat GIF a Day <donotreply@catgifaday.com>',
+            from: 'GIF a Day <donotreply@catgifaday.com>',
             to: req.body.email,
-            subject: 'Welcome to Cat GIF a Day!',
+            subject: 'Welcome to GIF a Day!',
             html: htmlToSend
           };
           emailer.transporter.sendMail(mailOptions, function(error, info){
@@ -73,7 +76,10 @@ app.post('/api/exists', (req, res) => {
 app.post('/api/update', (req, res) => {
   firebase.database.ref(`emails/${req.body.key}/active`).set(1)
     .then(() => {
-      return res.send(true)
+      firebase.database.ref(`emails/${req.body.key}/type`).set(req.body.type)
+        .then(() => {
+          return res.send(true);
+        })
     })
     .catch(err => {
       throw err;

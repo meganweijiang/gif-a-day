@@ -11,13 +11,14 @@ class App extends Component {
         <div className="outer">
           <div className="container">
             <header className="App-header">
-              <h1>Cat GIF a Day</h1>
+              <h1>GIF a Day</h1>
             </header>
             <Content isHome={true} />
             <Form/>
             <p className="unsub">Need to <Link to="/unsubscribe">unsubscribe</Link>?</p>
           </div>
         </div>
+        <Link className="about" to="/about">About &#8594;</Link>
       </div>
     );
   }

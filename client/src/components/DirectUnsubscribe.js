@@ -28,11 +28,11 @@ class DirectUnsubscribe extends Component {
       <div className="App">
         <div className="outer">
           <div className="container">
-            <Link className="go-home" to="/">&#8592; Go Home</Link>
             { this.state.success ? 
               (<h1>You have been unsubscribed.</h1>) 
               : 
               (<h1>Invalid key or error occurred.</h1>)}
+            <Link className="go-home" to="/">&#8592; Go Home</Link>
           </div>
         </div>
       </div>

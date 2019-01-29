@@ -85,6 +85,7 @@ class Unsubscribe extends Component {
             <Link className="go-home" to="/">&#8592; Go Home</Link>
           </div>
         </div>
+        <Link className="about" to="/about">About &#8594;</Link>
       </div>
     );
   }

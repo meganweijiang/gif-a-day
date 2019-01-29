@@ -1,8 +1,6 @@
 const handlebars = require('handlebars');
 const templateDaily = '../templates/daily.html';
 const util =  require('../utility/util');
-// const firebase = require('../utility/firebase');
-// const emailer = require('../utility/emailer');
 const firebase = require('firebase');
 const nodemailer = require('nodemailer');
 
@@ -28,44 +26,53 @@ firebase.initializeApp(config);
 
 const database = firebase.database();
 
-sendEmails = () => {
+sendEmails = async () => {
   const unsubLink = process.env.UNSUB_LINK;
-  util.getGif()
-    .then((gif) => {
-      util.readTemplate(templateDaily)
-        .then((res) => {
-          const email = handlebars.compile(res);
+  const catGif = await util.getGif('cat');
+  const dogGif = await util.getGif('dog');
+  util.readTemplate(templateDaily)
+    .then((res) => {
+      database.ref('emails').orderByChild('active').equalTo(1).once("value", snapshot => {
+        snapshot.forEach(email => {
+          const emailAddress = email.val().email;
+          const type = email.val().type;
+
+          let gif = catGif;
+          if (type === 'dog') {
+            gif = dogGif;
+          }
+
+          const emailTemp = handlebars.compile(res);
           const replacements = {
             gif,
-            unsubLink
+            unsubLink,
+            type
           }
-          const htmlToSend = email(replacements);
-          database.ref('emails').orderByChild('active').equalTo(1).once("value", snapshot => {
-            snapshot.forEach(email => {
-              let emailAddress = email.val().email;
-              const mailOptions = {
-                from: 'Cat GIF a Day <donotreply@catgifaday.com>',
-                to: emailAddress,
-                subject: "Here's your daily cat GIF",
-                html: htmlToSend
-              };
-              transporter.sendMail(mailOptions, function(error, info){
-                if (error) {
-                  console.log(error);
-                } else {
-                  console.log('Email sent: ' + info.response);
-                }
-              })
-            }) 
-          }) 
-            .then(() => {
-              firebase.database().goOffline();
-            })      
-        })
-    })
+          const htmlToSend = emailTemp(replacements);
+
+          const mailOptions = {
+            from: 'GIF a Day <donotreply@catgifaday.com>',
+            to: emailAddress,
+            subject: `Here's your daily ${type} GIF`,
+            html: htmlToSend
+          };
+          
+          transporter.sendMail(mailOptions, function(error, info){
+            if (error) {
+              console.log(error);
+            } else {
+              console.log('Email sent: ' + info.response);
+            }
+          })
+        }) 
+      }) 
+    .then(() => {
+      firebase.database().goOffline();
+    })      
     .catch((err) => {
       throw err;
     })
+  })
 }
 
 sendEmails()

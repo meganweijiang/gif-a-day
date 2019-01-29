@@ -4,6 +4,7 @@ import App from './App';
 import Unsubscribe from './Unsubscribe';
 import DirectUnsubscribe from './DirectUnsubscribe';
 import NotFoundPage from './NotFoundPage';
+import About from './About';
 
 const Router = () => (
   <BrowserRouter>
@@ -12,6 +13,7 @@ const Router = () => (
         <Route path="/" component={App} exact={true} />
         <Route path="/unsubscribe" component={Unsubscribe} exact={true} />
         <Route path="/unsubscribe/:id" component={DirectUnsubscribe} />
+        <Route path="/about" component={About} />
         <Route component={NotFoundPage} />
       </Switch>
     </div>
