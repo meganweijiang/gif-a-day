@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import '../styles/App.css';
+import '../styles/App.scss';
 import Form from './Form';
 import Content from './Content';
 import { Link } from 'react-router-dom';
