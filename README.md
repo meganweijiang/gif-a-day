@@ -8,6 +8,7 @@ Subscribe to mailing list and choose between daily cat or dog GIFs.
 
 * Firebase DB
 * Node.js
+* Express server
 * React
 * GIPHY API
 * Heroku
