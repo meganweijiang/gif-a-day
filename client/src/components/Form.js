@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import loading from '../images/loader.gif';
 
 class Form extends Component {
   constructor(props) {
@@ -17,7 +16,7 @@ class Form extends Component {
     text.style.visibility = 'visible';
     let timeout = window.setTimeout(() => {
       text.style.visibility = 'hidden';
-    }, 5000)
+    }, 3000)
     this.setState({ timeout });
   }
 
@@ -105,8 +104,10 @@ class Form extends Component {
           <br/>
           <button className="clearfix" disabled={!this.state.text}>Submit</button>
         </form>
-        <p id="message">{this.state.message}</p>
-        <img id="loading" src={loading} alt=""/>
+        <div className="hidden-content">
+          <p id="message">{this.state.message}</p>
+          <div id="loading"></div>
+        </div>
       </div>
     )
   }

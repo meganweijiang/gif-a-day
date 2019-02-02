@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import loading from '../images/loader.gif';
 import Content from './Content';
 
 class Unsubscribe extends Component {
@@ -76,8 +75,10 @@ class Unsubscribe extends Component {
               <br/>
               <button className="clearfix" disabled={!this.state.text}>Submit</button>
             </form>
-            <p id="message">{this.state.message}</p>
-            <img id="loading" src={loading} alt=""/>
+            <div className="hidden-content">
+              <p id="message">{this.state.message}</p>
+              <div id="loading"></div>
+            </div>
             <Link className="go-home" to="/">&#8592; Go Home</Link>
           </div>
         </div>
