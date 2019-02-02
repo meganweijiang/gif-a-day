@@ -19,16 +19,17 @@ class Unsubscribe extends Component {
   updateTimeout = () => {
     const text = document.getElementById('message');
     window.clearTimeout(this.state.timeout);
-    text.style.visibility = 'visible';
+    text.style.display = 'block';
     let timeout = window.setTimeout(() => {
-      text.style.visibility = 'hidden';
-    }, 5000)
+      text.style.display = 'none';
+    }, 3000)
     this.setState({ timeout });
   }
 
   onSubmit = async e => {
     e.preventDefault();
-    document.getElementById('loading').style.visibility = 'visible';
+    document.getElementById('loading').style.display = 'inline-block';
+    document.getElementById('message').style.display = 'none';
     const email = document.getElementById('emailUnsub').value;
     const exists = await fetch(`/api/exists/${email}`);
     const existsRes = await exists.json();
@@ -57,7 +58,7 @@ class Unsubscribe extends Component {
         this.setState({ message: "Email address is not currently subscribed." });
         this.updateTimeout();
     }
-    document.getElementById('loading').style.visibility = 'hidden';
+    document.getElementById('loading').style.display = 'none';
   };
 
   render() {

@@ -13,9 +13,9 @@ class Form extends Component {
   updateTimeout = () => {
     const text = document.getElementById('message');
     window.clearTimeout(this.state.timeout);
-    text.style.visibility = 'visible';
+    text.style.display = 'block';
     let timeout = window.setTimeout(() => {
-      text.style.visibility = 'hidden';
+      text.style.display = 'none';
     }, 3000)
     this.setState({ timeout });
   }
@@ -26,7 +26,8 @@ class Form extends Component {
 
   onSubmit = async e => {
     e.preventDefault();
-    document.getElementById('loading').style.visibility = 'visible';
+    document.getElementById('loading').style.display = 'inline-block';
+    document.getElementById('message').style.display = 'none';
     const email = document.getElementById('email').value;
     const type = document.getElementById('option-select').value;
     const exists = await fetch(`/api/exists/${email}`);
@@ -84,7 +85,7 @@ class Form extends Component {
         this.updateTimeout();
       }
     }
-    document.getElementById('loading').style.visibility = 'hidden';
+    document.getElementById('loading').style.display = 'none';
   };
 
   render() {

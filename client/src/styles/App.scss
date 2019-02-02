@@ -94,26 +94,27 @@ form {
   padding: 20px 0 70px 0;
 }
 
+.hidden-content {
+  padding: 20px;
+  height: 100px;
+}
+
 #message {
   height: 20px;
-  padding: 20px 0;
-  visibility: hidden;
+  display: none;
 }
 
 #loading {
-  visibility: hidden;
-  margin: 40px 0;
+  display: none;
   background: #ccdfff;
   border-radius: 50%;
   height: 16px;
   width: 16px;
   position: relative;
-  display: inline-block;
   box-shadow: 0px 0px 0px 4px rgba(0,0,0,0.3);
 
   &:after, &:before {
     content: '';
-    display: block;
     width: 20px;
     height: 20px;
     border-radius: 50%
