@@ -23,7 +23,7 @@ getGif = (type) => {
     fetch(`https://api.giphy.com/v1/gifs/random?tag=${type}&api_key=${process.env.GIPHY_API_KEY}`)
       .then(response => response.json())
       .then(body => {
-        const url = body.data.images.original.url;
+        const url = body.data.images.downsized.url;
         resolve(url);
       })
       .catch(err => {
