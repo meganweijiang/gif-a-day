@@ -43,32 +43,32 @@ app.post('/api/add', (req, res) => {
     type: req.body.type
   })
     .then(() => {
-      util.getGif(type);
+      return util.getGif(type);
     })
     .then((gif) => {
       util.readTemplate(templateNew)
-      .then((res) => {
-        const email = handlebars.compile(res);
-        const replacements = {
-          gif,
-          unsubLink,
-          type
-        }
-        const htmlToSend = email(replacements);
-        const mailOptions = {
-          from: 'GIF a Day <donotreply@catgifaday.com>',
-          to: req.body.email,
-          subject: 'Welcome to GIF a Day!',
-          html: htmlToSend
-        };
-        emailer.transporter.sendMail(mailOptions, function(error, info){
-          if (error) {
-            console.log(error);
-          } else {
-            console.log('Email sent: ' + info.response);
+        .then((res) => {
+          const email = handlebars.compile(res);
+          const replacements = {
+            gif,
+            unsubLink,
+            type
           }
+          const htmlToSend = email(replacements);
+          const mailOptions = {
+            from: 'GIF a Day <donotreply@catgifaday.com>',
+            to: req.body.email,
+            subject: 'Welcome to GIF a Day!',
+            html: htmlToSend
+          };
+          emailer.transporter.sendMail(mailOptions, function(error, info){
+            if (error) {
+              console.log(error);
+            } else {
+              console.log('Email sent: ' + info.response);
+            }
+          })
         })
-      })
     })
     .then(() => {
       return res.send(true)

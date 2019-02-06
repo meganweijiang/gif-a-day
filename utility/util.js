@@ -16,14 +16,47 @@ readTemplate = (path) => {
   }) 
 }
 
-// Get GIF from GIPHY
-getGif = (type) => {
-  console.log(`Getting GIF for ${type}`);
+callGiphyApi = (type) => {
   return new Promise((resolve, reject) => {
     fetch(`https://api.giphy.com/v1/gifs/random?tag=${type}&api_key=${process.env.GIPHY_API_KEY}`)
-      .then(response => response.json())
+      .then(data => {
+        return data.json();
+      })
       .then(body => {
-        const url = body.data.images.downsized.url;
+        resolve(body.data.images.downsized.url);
+      })
+      .catch(err => {
+        reject(err);
+      })
+  })
+}
+
+// Get GIF from GIPHY
+getGif = (type) => {
+  let url = '';
+  let attempts = 1;
+  console.log(`Getting GIF for ${type}`);
+  return new Promise((resolve, reject) => {
+    callGiphyApi(type)
+      .then(response => {
+        url = response;
+        if (!!url) {
+          return url
+        }
+        while (!!url == false && attempts <= 5) {
+          console.log('Retrying to get GIF');
+          attempts += 1;
+          callGiphyApi(type)
+            .then(response => {
+              url = response
+              if (url) {
+                return url
+                }
+            })
+        }
+        reject('Failed to get GIF');
+      })
+      .then(url => {
         resolve(url);
       })
       .catch(err => {
