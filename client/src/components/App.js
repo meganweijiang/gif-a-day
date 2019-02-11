@@ -14,7 +14,7 @@ class App extends Component {
               <h1>GIF a Day</h1>
             </header>
             <Content isHome={true} />
-            <Form/>
+            <Form />
             <p className="unsub">Need to <Link to="/unsubscribe">unsubscribe</Link>?</p>
           </div>
         </div>

@@ -1,35 +1,38 @@
 import React, { Component } from 'react';
+import HiddenContent from './HiddenContent';
 
 class Form extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      text: '',
+      email: '',
+      type: 'cat',
+      message: '',
       timeout: null,
-      message: ''
+      loading: false,
+      showMessage: false
     };
   };
 
   updateTimeout = () => {
-    const text = document.getElementById('message');
     window.clearTimeout(this.state.timeout);
-    text.style.display = 'block';
+    this.setState({ showMessage: true });
     let timeout = window.setTimeout(() => {
-      text.style.display = 'none';
+      this.setState({ showMessage: false });
     }, 3000)
     this.setState({ timeout });
   }
 
   handleChange = (e) => {
-    this.setState({ text: e.target.value })
+    const prop = e.target.id;
+    this.setState({ [prop]: e.target.value })
   }
 
   onSubmit = async e => {
     e.preventDefault();
-    document.getElementById('loading').style.display = 'inline-block';
-    document.getElementById('message').style.display = 'none';
-    const email = document.getElementById('email').value;
-    const type = document.getElementById('option-select').value;
+    this.setState({ loading: true, showMessage: false });
+    const email = this.state.email;
+    const type = this.state.type;
     const exists = await fetch(`/api/exists/${email}`);
     const existsRes = await exists.json();
     if (existsRes) {
@@ -38,18 +41,15 @@ class Form extends Component {
       const currentType = existsRes[key].type;
       if (active === 1) {
         if (currentType !== type) {
-          const updateType = await fetch('/api/update', {
+          fetch('/api/update', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({ key, type })
           })
-          if (updateType) {
-            document.getElementById('email').value = '';
-            this.setState({ message: "Your mailing preferences have been updated." });
-            this.updateTimeout();
-          }
+          this.setState({ email: '', message: "Your mailing preferences have been updated." });
+          this.updateTimeout();
         }
         else {
           this.setState({ message: "Email address is already on the mailing list and active." });
@@ -57,35 +57,29 @@ class Form extends Component {
         }
       }
       else {
-        const update = await fetch('/api/update', {
+        await fetch('/api/update', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({ key, type })
         })
-        if (update) {
-          document.getElementById('email').value = '';
-          this.setState({ message: "Welcome back to the mailing list!" });
-          this.updateTimeout();
-        }
+        this.setState({ email: '', message: "Welcome back to the mailing list!" });
+        this.updateTimeout();
       }
     }
     else {
-      const add = await fetch('/api/add', {
+      await fetch('/api/add', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ email, type })
       })
-      if (add) {
-        document.getElementById('email').value = '';
-        this.setState({ message: "Email address has been added to the mailing list!" });
-        this.updateTimeout();
-      }
+      this.setState({ email: '', message: "Email address has been added to the mailing list!" });
+      this.updateTimeout();
     }
-    document.getElementById('loading').style.display = 'none';
+    this.setState({ loading: false });
   };
 
   render() {
@@ -94,21 +88,18 @@ class Form extends Component {
         <form onSubmit={this.onSubmit}>
           <div className="select-container">
             <span className="select-text">I would like a&nbsp;</span>
-            <select id="option-select">
+            <select id="type" onChange={this.handleChange}>
               <option value="cat">cat</option>
               <option value="dog">dog</option>
             </select>
             <span className="select-text">&nbsp;GIF everyday.</span>
           </div>
           <span className="clearfix">Email Address</span>
-          <input id="email" type="email" name="email" value={this.state.text} onChange={this.handleChange}/>
+          <input id="email" type="email" name="email" value={this.state.email} onChange={this.handleChange}/>
           <br/>
-          <button className="clearfix" disabled={!this.state.text}>Submit</button>
+          <button className="clearfix" disabled={!this.state.email}>Submit</button>
         </form>
-        <div className="hidden-content">
-          <p id="message">{this.state.message}</p>
-          <div id="loading"></div>
-        </div>
+        <HiddenContent showMessage={this.state.showMessage} message={this.state.message} loading={this.state.loading} />
       </div>
     )
   }

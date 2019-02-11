@@ -13,9 +13,9 @@ class About extends Component {
             <p>This page was created by <a href="https://github.com/meganweijiang">Megan Weijiang</a>.</p>
             <br/>
             <p>Built with React, Node.js, Firebase, and the GIPHY API.</p>
-            <p>Emailing is done with Nodemailer and scheduled as a Cron job on a Heroku server.</p>
+            <p>Emailing is done with Nodemailer and is scheduled as a Cron job on a Heroku server.</p>
             <br/>
-            <Link className="go-home" to="/">&#8592; Go Home</Link>
+            <Link className='go-home' to='/'>&#8592; Go Home</Link>
           </div>
         </div>
       </div>

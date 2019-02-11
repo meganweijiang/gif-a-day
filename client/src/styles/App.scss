@@ -101,11 +101,10 @@ form {
 
 #message {
   height: 20px;
-  display: none;
 }
 
 #loading {
-  display: none;
+  display: inline-block;
   background: #ccdfff;
   border-radius: 50%;
   height: 16px;
