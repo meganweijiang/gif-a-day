@@ -17,7 +17,8 @@ class Form extends Component {
     window.clearTimeout(this.state.timeout);
   }
 
-  updateTimeout = () => {
+  updateTimeout = (message) => {
+    this.setState({ email: '', message, loading: false });
     window.clearTimeout(this.state.timeout);
     let timeout = window.setTimeout(() => {
       this.setState({ message: '' });
@@ -50,12 +51,10 @@ class Form extends Component {
             },
             body: JSON.stringify({ key, type })
           })
-          this.setState({ email: '', message: "Your mailing preferences have been updated.", loading: false });
-          this.updateTimeout();
+          this.updateTimeout(`Mailing preferences for ${email} have been updated.`);
         }
         else {
-          this.setState({ message: "Email address is already on the mailing list and active.", loading: false });
-          this.updateTimeout();     
+          this.updateTimeout(`${email} is already on the mailing list.`);     
         }
       }
       else {
@@ -66,8 +65,7 @@ class Form extends Component {
           },
           body: JSON.stringify({ key, type })
         })
-        this.setState({ email: '', message: "Welcome back to the mailing list!", loading: false });
-        this.updateTimeout();
+        this.updateTimeout(`Welcome back to the mailing list, ${email}!`);
       }
     }
     else {
@@ -78,8 +76,7 @@ class Form extends Component {
         },
         body: JSON.stringify({ email, type })
       })
-      this.setState({ email: '', message: "Email address has been added to the mailing list!", loading: false });
-      this.updateTimeout();
+      this.updateTimeout(`${email} has been added to the mailing list!`);
     }
   };
 

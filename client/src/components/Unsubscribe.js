@@ -18,7 +18,8 @@ class Unsubscribe extends Component {
     window.clearTimeout(this.state.timeout);
   }
 
-  updateTimeout = () => {
+  updateTimeout = (message) => {
+    this.setState({ email: '', message, loading: false });
     window.clearTimeout(this.state.timeout);
     let timeout = window.setTimeout(() => {
       this.setState({ message: '' });
@@ -48,17 +49,14 @@ class Unsubscribe extends Component {
           },
           body: JSON.stringify({ key })
         });
-        this.setState({ message: "Email address has been unsubscribed.", loading: false });
-        this.updateTimeout();
+        this.updateTimeout(`${email} has been unsubscribed.`);
       }
       else {
-        this.setState({ message: "Email address is not currently subscribed.", loading: false });
-        this.updateTimeout();
+        this.updateTimeout(`${email} is not currently subscribed.`);
       }
     }
     else {
-        this.setState({ message: "Email address is not currently subscribed.", loading: false });
-        this.updateTimeout();
+        this.updateTimeout(`${email} is not currently subscribed.`);
     }
   };
 
