@@ -110,7 +110,6 @@ form {
   height: 16px;
   width: 16px;
   position: relative;
-  box-shadow: 0px 0px 0px 4px rgba(0,0,0,0.3);
 
   &:after, &:before {
     content: '';
@@ -160,4 +159,24 @@ form {
   padding: 20px;
   font-size: 12px;
   align-self: flex-end;
+}
+
+.cat-gif-enter {
+  transform: translateY(-60px);
+  opacity: 0.01;
+}
+
+.cat-gif-enter.cat-gif-enter-active {
+  transform: translateY(0px);
+  opacity: 1;
+  transition: all 500ms ease-in;
+}
+
+.hidden-message-exit {
+  opacity: 1;
+}
+
+.hidden-message-exit.hidden-message-exit-active {
+  opacity: 0.01;
+  transition: opacity 300ms ease-in;
 }

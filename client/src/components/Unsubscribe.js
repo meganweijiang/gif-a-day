@@ -10,16 +10,18 @@ class Unsubscribe extends Component {
       email: '',
       message: '',
       timeout: null,
-      loading: false,
-      showMessage: false
+      loading: false
     };
   };
 
+  componentWillUnmount = () => {
+    window.clearTimeout(this.state.timeout);
+  }
+
   updateTimeout = () => {
     window.clearTimeout(this.state.timeout);
-    this.setState({ showMessage: true });
     let timeout = window.setTimeout(() => {
-      this.setState({ showMessage: false });
+      this.setState({ message: '' });
     }, 3000)
     this.setState({ timeout });
   }
@@ -31,7 +33,7 @@ class Unsubscribe extends Component {
 
   onSubmit = async e => {
     e.preventDefault();
-    this.setState({ loading: true, showMessage: false });
+    this.setState({ loading: true, message: '' });
     const email = this.state.email;
     const exists = await fetch(`/api/exists/${email}`);
     const existsRes = await exists.json();
@@ -46,19 +48,18 @@ class Unsubscribe extends Component {
           },
           body: JSON.stringify({ key })
         });
-        this.setState({ message: "Email address has been unsubscribed." });
+        this.setState({ message: "Email address has been unsubscribed.", loading: false });
         this.updateTimeout();
       }
       else {
-        this.setState({ message: "Email address is not currently subscribed." });
+        this.setState({ message: "Email address is not currently subscribed.", loading: false });
         this.updateTimeout();
       }
     }
     else {
-        this.setState({ message: "Email address is not currently subscribed." });
+        this.setState({ message: "Email address is not currently subscribed.", loading: false });
         this.updateTimeout();
     }
-    this.setState({ loading: false });
   };
 
   render() {
@@ -76,7 +77,7 @@ class Unsubscribe extends Component {
               <br/>
               <button className="clearfix" disabled={!this.state.email}>Submit</button>
             </form>
-            <HiddenContent showMessage={this.state.showMessage} message={this.state.message} loading={this.state.loading} />
+            <HiddenContent message={this.state.message} loading={this.state.loading} />
             <Link className='go-home' to='/'>&#8592; Go Home</Link>
           </div>
         </div>

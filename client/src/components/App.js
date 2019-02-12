@@ -11,7 +11,7 @@ class App extends Component {
         <div className="outer">
           <div className="container">
             <header className="App-header">
-              <h1>GIF a Day</h1>
+            <h1>GIF a Day</h1>
             </header>
             <Content isHome={true} />
             <Form />

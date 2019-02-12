@@ -9,16 +9,18 @@ class Form extends Component {
       type: 'cat',
       message: '',
       timeout: null,
-      loading: false,
-      showMessage: false
+      loading: false
     };
   };
 
+  componentWillUnmount = () => {
+    window.clearTimeout(this.state.timeout);
+  }
+
   updateTimeout = () => {
     window.clearTimeout(this.state.timeout);
-    this.setState({ showMessage: true });
     let timeout = window.setTimeout(() => {
-      this.setState({ showMessage: false });
+      this.setState({ message: '' });
     }, 3000)
     this.setState({ timeout });
   }
@@ -30,7 +32,7 @@ class Form extends Component {
 
   onSubmit = async e => {
     e.preventDefault();
-    this.setState({ loading: true, showMessage: false });
+    this.setState({ loading: true, message: '' });
     const email = this.state.email;
     const type = this.state.type;
     const exists = await fetch(`/api/exists/${email}`);
@@ -48,11 +50,11 @@ class Form extends Component {
             },
             body: JSON.stringify({ key, type })
           })
-          this.setState({ email: '', message: "Your mailing preferences have been updated." });
+          this.setState({ email: '', message: "Your mailing preferences have been updated.", loading: false });
           this.updateTimeout();
         }
         else {
-          this.setState({ message: "Email address is already on the mailing list and active." });
+          this.setState({ message: "Email address is already on the mailing list and active.", loading: false });
           this.updateTimeout();     
         }
       }
@@ -64,7 +66,7 @@ class Form extends Component {
           },
           body: JSON.stringify({ key, type })
         })
-        this.setState({ email: '', message: "Welcome back to the mailing list!" });
+        this.setState({ email: '', message: "Welcome back to the mailing list!", loading: false });
         this.updateTimeout();
       }
     }
@@ -76,10 +78,9 @@ class Form extends Component {
         },
         body: JSON.stringify({ email, type })
       })
-      this.setState({ email: '', message: "Email address has been added to the mailing list!" });
+      this.setState({ email: '', message: "Email address has been added to the mailing list!", loading: false });
       this.updateTimeout();
     }
-    this.setState({ loading: false });
   };
 
   render() {
@@ -99,7 +100,7 @@ class Form extends Component {
           <br/>
           <button className="clearfix" disabled={!this.state.email}>Submit</button>
         </form>
-        <HiddenContent showMessage={this.state.showMessage} message={this.state.message} loading={this.state.loading} />
+        <HiddenContent message={this.state.message} loading={this.state.loading} />
       </div>
     )
   }
