@@ -20,7 +20,8 @@ require('dotenv').config();
 // Check if email exists in Firebase
 app.get('/api/exists/:email', (req, res) => {
   console.log('Checking if email exists');
-  firebase.database.ref('emails').orderByChild('email').equalTo(req.params.email).once("value", snapshot => {
+  parsedEmail = req.params.email.toLowerCase();
+  firebase.database.ref('emails').orderByChild('email').equalTo(parsedEmail).once("value", snapshot => {
     if (snapshot.val() !== null) {
       console.log('Email exists!');
       return res.send(snapshot.val());
@@ -37,8 +38,9 @@ app.get('/api/exists/:email', (req, res) => {
 app.post('/api/add', (req, res) => {
   const unsubLink = process.env.UNSUB_LINK;
   const type = req.body.type;
+  const parsedEmail = req.body.email.toLowerCase();
   firebase.database.ref('emails').push({
-    email: req.body.email,
+    email: parsedEmail,
     active: 1,
     type: req.body.type
   })
@@ -57,7 +59,7 @@ app.post('/api/add', (req, res) => {
           const htmlToSend = email(replacements);
           const mailOptions = {
             from: 'GIF a Day <donotreply@catgifaday.com>',
-            to: req.body.email,
+            to: parsedEmail,
             subject: 'Welcome to GIF a Day!',
             html: htmlToSend
           };

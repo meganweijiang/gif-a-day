@@ -52,11 +52,11 @@ class Unsubscribe extends Component {
         this.updateTimeout(`${email} has been unsubscribed.`);
       }
       else {
-        this.updateTimeout(`${email} is not currently subscribed.`);
+        this.updateTimeout(`${email} does not exist on the mailing list.`);
       }
     }
     else {
-        this.updateTimeout(`${email} is not currently subscribed.`);
+        this.updateTimeout(`${email} does not exist on the mailing list.`);
     }
   };
 
