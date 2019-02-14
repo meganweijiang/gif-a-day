@@ -68,18 +68,13 @@ getGif = (type) => {
 // Encrypt a string
 encrypt = (id) => {
   const key = crypto.createCipher('aes-128-cbc', process.env.CRYPTO_PW);
-  const str = key.update(id, 'utf8', 'hex')
-  str += key.update.final('hex');
-  return str;
+  return key.update(id, 'utf8', 'hex') + key.final('hex');
 }
-
 
 // Decrypt a string
 decrypt = (id) => {
   const key = crypto.createDecipher('aes-128-cbc', process.env.CRYPTO_PW);
-  const decrypted = key.update(id, 'hex', 'utf8')
-  decrypted += key.update.final('utf8');
-  return decrypted;
+  return key.update(id, 'hex', 'utf8') + key.final('utf8');
 }
 
 module.exports = {

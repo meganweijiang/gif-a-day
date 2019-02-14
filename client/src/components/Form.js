@@ -31,19 +31,46 @@ class Form extends Component {
     this.setState({ [prop]: e.target.value })
   }
 
-  onSubmit = async e => {
+  handleErrors = (res) => {
+    if (!res.ok) {
+      this.updateTimeout(`An error has occurred.`);
+      throw Error(res.statusText);    
+    }
+    return res;
+  }
+
+  onSubmit = (e) => {
     e.preventDefault();
     this.setState({ loading: true, message: '' });
     const email = this.state.email;
     const type = this.state.type;
-    const exists = await fetch(`/api/exists/${email}`);
-    const existsRes = await exists.json();
-    if (existsRes) {
-      const key = Object.keys(existsRes)[0];
-      const active = existsRes[key].active;
-      const currentType = existsRes[key].type;
-      if (active === 1) {
-        if (currentType !== type) {
+    fetch(`/api/exists/${email}`)
+    .then(this.handleErrors)
+    .then((res) => res.json())
+    .then((exists) => {
+      if (exists) {
+        const key = Object.keys(exists)[0];
+        const active = exists[key].active;
+        const currentType = exists[key].type;
+        if (active === 1) {
+          if (currentType !== type) {
+            fetch('/api/update', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ key, type })
+            })
+            .then(this.handleErrors)
+            .then((res) => {
+              this.updateTimeout(`Mailing preferences for ${email} have been updated.`);
+            })
+          }
+          else {
+            this.updateTimeout(`${email} is already on the mailing list.`);     
+          }
+        }
+        else {
           fetch('/api/update', {
             method: 'POST',
             headers: {
@@ -51,33 +78,27 @@ class Form extends Component {
             },
             body: JSON.stringify({ key, type })
           })
-          this.updateTimeout(`Mailing preferences for ${email} have been updated.`);
-        }
-        else {
-          this.updateTimeout(`${email} is already on the mailing list.`);     
+          .then(this.handleErrors)
+          .then((res) => {
+            this.updateTimeout(`Welcome back to the mailing list, ${email}!`);
+          })
         }
       }
       else {
-        await fetch('/api/update', {
+        fetch('/api/add', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ key, type })
+          body: JSON.stringify({ email, type })
         })
-        this.updateTimeout(`Welcome back to the mailing list, ${email}!`);
-      }
-    }
-    else {
-      await fetch('/api/add', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, type })
-      })
-      this.updateTimeout(`${email} has been added to the mailing list!`);
-    }
+        .then(this.handleErrors)
+        .then((res) => {
+          this.updateTimeout(`${email} has been added to the mailing list!`);
+        })
+      }      
+    })
+    .catch((error) => console.log(error));
   };
 
   render() {

@@ -7,7 +7,7 @@ class Unsubscribe extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      email: '',
+      email: this.props.directEmail,
       message: '',
       timeout: null,
       loading: false
@@ -27,6 +27,14 @@ class Unsubscribe extends Component {
     this.setState({ timeout });
   }
 
+  handleErrors = (res) => {
+    if (!res.ok) {
+      this.updateTimeout(`An error has occurred.`);
+      throw Error(res.statusText);    
+    }
+    return res;
+  }
+
   handleChange = (e) => {
     const prop = e.target.id;
     this.setState({ [prop]: e.target.value })
@@ -36,28 +44,35 @@ class Unsubscribe extends Component {
     e.preventDefault();
     this.setState({ loading: true, message: '' });
     const email = this.state.email;
-    const exists = await fetch(`/api/exists/${email}`);
-    const existsRes = await exists.json();
-    if (existsRes) {
-      let key = Object.keys(existsRes)[0];
-      let active = existsRes[key].active;
-      if (active) {
-        await fetch(`/api/unsubscribe`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ key })
-        });
-        this.updateTimeout(`${email} has been unsubscribed.`);
+    fetch(`/api/exists/${email}`)
+    .then(this.handleErrors)
+    .then((res) => res.json())
+    .then((exists) => {
+      if (exists) {
+        let key = Object.keys(exists)[0];
+        let active = exists[key].active;
+        if (active) {
+          fetch(`/api/unsubscribe`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ key })
+          })
+          .then(this.handleErrors)
+          .then(() => {
+            this.updateTimeout(`${email} has been unsubscribed.`);
+          })
+        }
+        else {
+          this.updateTimeout(`${email} does not exist on the mailing list.`);
+        }
       }
       else {
         this.updateTimeout(`${email} does not exist on the mailing list.`);
-      }
-    }
-    else {
-        this.updateTimeout(`${email} does not exist on the mailing list.`);
-    }
+      }     
+    })
+    .catch((error) => console.log(error));
   };
 
   render() {

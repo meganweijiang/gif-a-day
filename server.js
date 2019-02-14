@@ -29,55 +29,56 @@ app.get('/api/exists/:email', (req, res) => {
     console.log('Email does not exist');
     return res.send(false);
   })
-    .catch(err => {
-      throw err;
-    })
+  .catch(err => {
+    return res.status(400).send(err);
+  })
 });
 
 // Add new email
 app.post('/api/add', (req, res) => {
-  const unsubLink = process.env.UNSUB_LINK;
   const type = req.body.type;
   const parsedEmail = req.body.email.toLowerCase();
+  const encrypted = util.encrypt(parsedEmail);
+  const unsubLink = `${process.env.UNSUB_LINK}/${encrypted}`;
   firebase.database.ref('emails').push({
     email: parsedEmail,
     active: 1,
     type: req.body.type
   })
-    .then(() => {
-      return util.getGif(type);
+  .then(() => {
+    return util.getGif(type);
+  })
+  .then((gif) => {
+    util.readTemplate(templateNew)
+    .then((res) => {
+      const email = handlebars.compile(res);
+      const replacements = {
+        gif,
+        unsubLink,
+        type
+      }
+      const htmlToSend = email(replacements);
+      const mailOptions = {
+        from: 'GIF a Day <donotreply@catgifaday.com>',
+        to: parsedEmail,
+        subject: 'Welcome to GIF a Day!',
+        html: htmlToSend
+      };
+      emailer.transporter.sendMail(mailOptions, function(error, info){
+        if (error) {
+          console.log(error);
+        } else {
+          console.log('Email sent: ' + info.response);
+        }
+      })
     })
-    .then((gif) => {
-      util.readTemplate(templateNew)
-        .then((res) => {
-          const email = handlebars.compile(res);
-          const replacements = {
-            gif,
-            unsubLink,
-            type
-          }
-          const htmlToSend = email(replacements);
-          const mailOptions = {
-            from: 'GIF a Day <donotreply@catgifaday.com>',
-            to: parsedEmail,
-            subject: 'Welcome to GIF a Day!',
-            html: htmlToSend
-          };
-          emailer.transporter.sendMail(mailOptions, function(error, info){
-            if (error) {
-              console.log(error);
-            } else {
-              console.log('Email sent: ' + info.response);
-            }
-          })
-        })
-    })
-    .then(() => {
-      return res.send(true)
-    })
-    .catch(err => {
-      throw err;
-    });
+  })
+  .then(() => {
+    return res.send(true)
+  })
+  .catch(err => {
+    return res.status(400).send(err);
+  });
 });
 
 
@@ -85,39 +86,38 @@ app.post('/api/add', (req, res) => {
 app.post('/api/update', (req, res) => {
   console.log(`Updating email preferences for ${req.body.key}`);
   firebase.database.ref(`emails/${req.body.key}/active`).set(1)
-    .then(() => {
-      firebase.database.ref(`emails/${req.body.key}/type`).set(req.body.type)
-    })
-    .then(() => {
-      return res.send(true);
-    })
-    .catch(err => {
-      throw err;
-    });
+  .then(() => {
+    firebase.database.ref(`emails/${req.body.key}/type`).set(req.body.type)
+  })
+  .then(() => {
+    return res.send(true);
+  })
+  .catch(err => {
+    return res.status(400).send(err);
+  });
 });
 
 // Unsubscribe by setting active to 0 
 app.post('/api/unsubscribe', (req, res) => { 
   console.log(`Unsubscribing ${req.body.key}`)
   firebase.database.ref(`emails/${req.body.key}/active`).set(0)
-    .then(() => {
-      return res.send(true)
-    })
-    .catch(err => {
-      throw err;
-    });
+  .then(() => {
+    return res.send(true)
+  })
+  .catch(err => {
+    return res.status(400).send(err);
+  });
 });
 
 // Decrypt id value from URL and automatically unsubscribe
 app.post('/api/decrypt', (req, res) => {
-  const str = util.decrypt(req.body.id);
-  firebase.database.ref(`emails/${str}/active`).set(0)
-    .then(() => {
-      return res.send(true)
-    })
-    .catch(err => {
-      throw err;
-    });
+  console.log("Decrypting value");
+  try {
+    const str = util.decrypt(req.body.id);
+    return res.send({ email: str })
+  } catch (err) {
+    return res.status(400).send(err);
+  }
 });
 
 // check if prod environment

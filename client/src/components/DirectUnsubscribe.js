@@ -1,40 +1,48 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
+import Unsubscribe from './Unsubscribe';
 
 class DirectUnsubscribe extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      success: false
-    };
-  };
+      email: null
+    }
+  }
 
-  componentDidMount = async () => {
-    const { id } = this.props.match.params;
-    const decrypted = await fetch('/api/decrypt', {
+  handleErrors = (res) => {
+    if (!res.ok) {
+      throw Error(res.statusText);    
+    }
+    return res;
+  }
+
+  componentDidMount = () => {
+    const id = String(this.props.match.params.id);
+    fetch('/api/decrypt', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ id: id })
+      body: JSON.stringify({ id })
     })
-    if (decrypted.status === 200) {
-      this.setState({ success: true });
-    }
-  };
+    .then(this.handleErrors)
+    .then((res) => {
+      return res.json();
+    })
+    .then((res) => {
+      const email = res.email;
+      this.setState({ email });
+    })
+    .catch((err) => {
+      console.log(err);
+      this.setState({ email : '' });
+    })
+  }
 
   render() {
     return (
-      <div className="App">
-        <div className="outer">
-          <div className="container">
-            { this.state.success ? 
-              (<h1>You have been unsubscribed.</h1>) 
-              : 
-              (<h1>Invalid key or error occurred.</h1>)}
-            <Link className="go-home" to="/">&#8592; Go Home</Link>
-          </div>
-        </div>
+      <div>
+        { this.state.email !== null && <Unsubscribe directEmail={this.state.email} /> }
       </div>
     );
   }
