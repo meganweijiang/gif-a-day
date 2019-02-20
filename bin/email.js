@@ -61,7 +61,7 @@ sendEmails = async () => {
         const htmlToSend = emailTemp(replacements);
 
         const mailOptions = {
-          from: 'GIF a Day <donotreply@catgifaday.com>',
+          from: `GIF a Day <${process.env.EMAIL_ADDRESS}>`,
           to: emailAddress,
           subject: `Here's your daily ${type} GIF`,
           html: htmlToSend

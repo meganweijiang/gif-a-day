@@ -3,9 +3,7 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const app = express();
 const port = process.env.PORT || 5000;
-const nodemailer = require('nodemailer');
 const handlebars = require('handlebars');
-const fs = require('fs');
 const templateNew = './templates/new.html';
 const util =  require('./utility/util');
 const firebase = require('./utility/firebase');
@@ -59,7 +57,7 @@ app.post('/api/add', (req, res) => {
       }
       const htmlToSend = email(replacements);
       const mailOptions = {
-        from: 'GIF a Day <donotreply@catgifaday.com>',
+        from: `GIF a Day <${process.env.EMAIL_ADDRESS}>`,
         to: parsedEmail,
         subject: 'Welcome to GIF a Day!',
         html: htmlToSend
