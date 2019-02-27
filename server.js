@@ -68,13 +68,6 @@ app.post('/api/add', (req, res) => {
     return util.getGif(type);
   })
   .then((gif) => {
-    if (cache.length < 30) {
-      cache.push(gif);
-    }
-    else {
-      cache.shift();
-      cache.push(gif);
-    }
     util.readTemplate(templateNew)
     .then((res) => {
       const email = handlebars.compile(res);
