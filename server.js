@@ -15,6 +15,27 @@ app.use(express.static(path.join(__dirname, 'client/build')));
 
 require('dotenv').config();
 
+// LRU cache
+let cache = [];
+
+app.get('/api/cache', (req, res) => {
+  console.log("LRU cache is now: ", cache);
+  return res.send(cache);
+})
+
+app.post('/api/cache', (req, res) => {
+  const gif = req.body.url;
+  if (cache.length <= parseInt(process.env.CACHE_MAX)) {
+    cache.push(gif);
+  }
+  else {
+    cache.shift();
+    cache.push(gif);
+  }
+  console.log("LRU cache is now: ", cache);
+  return res.send(cache);
+})
+
 // Check if email exists in Firebase
 app.get('/api/exists/:email', (req, res) => {
   console.log('Checking if email exists');
@@ -47,6 +68,13 @@ app.post('/api/add', (req, res) => {
     return util.getGif(type);
   })
   .then((gif) => {
+    if (cache.length < 30) {
+      cache.push(gif);
+    }
+    else {
+      cache.shift();
+      cache.push(gif);
+    }
     util.readTemplate(templateNew)
     .then((res) => {
       const email = handlebars.compile(res);

@@ -19,49 +19,70 @@ readTemplate = (path) => {
 callGiphyApi = (type) => {
   return new Promise((resolve, reject) => {
     fetch(`https://api.giphy.com/v1/gifs/random?tag=${type}&api_key=${process.env.GIPHY_API_KEY}`)
-      .then(data => {
-        return data.json();
-      })
-      .then(body => {
-        resolve(body.data.images.downsized.url);
-      })
-      .catch(err => {
-        reject(err);
-      })
+    .then(data => {
+      return data.json();
+    })
+    .then(body => {
+      resolve(body.data.images.downsized.url);
+    })
+    .catch(err => {
+      reject(err);
+    })
   })
 }
 
 // Get GIF from GIPHY
-getGif = (type) => {
+getGif = async (type) => {
   let url = '';
   let attempts = 1;
   console.log(`Getting GIF for ${type}`);
+  let cache = await fetch(process.env.CACHE_ENDPOINT);
+  cache = await cache.json();
   return new Promise((resolve, reject) => {
     callGiphyApi(type)
-      .then(response => {
-        url = response;
-        if (!!url) {
-          return url
+    .then(response => {
+      url = response;
+      if (cache.includes(url)) {
+        url = '';
+      }
+      if (!!url) {
+        return url
+      }
+      while (!!url == false && attempts <= 5) {
+        console.log('Retrying to get GIF');
+        attempts += 1;
+        callGiphyApi(type)
+        .then(response => {
+          url = response
+          if (url) {
+            return url
+          }
+        })
+      }
+      reject('Failed to get GIF');
+    })
+    .then(url => {
+      fetch(process.env.CACHE_ENDPOINT, {
+        method: 'POST', // or 'PUT'
+        body: JSON.stringify({ url }), // data can be `string` or {object}!
+        headers:{
+          'Content-Type': 'application/json'
         }
-        while (!!url == false && attempts <= 5) {
-          console.log('Retrying to get GIF');
-          attempts += 1;
-          callGiphyApi(type)
-            .then(response => {
-              url = response
-              if (url) {
-                return url
-                }
-            })
-        }
-        reject('Failed to get GIF');
       })
-      .then(url => {
-        resolve(url);
+      .then(cache => {
+        return cache.json();
       })
-      .catch(err => {
-        reject(err);
-      });
+      .then(cache => {
+        console.log("LRU cache is now: ", cache);
+      })
+      return url
+    })
+    .then(url => {
+      resolve(url);
+    })
+    .catch(err => {
+      reject(err);
+    });
   })
 }
 
