@@ -71,7 +71,7 @@ button:hover {
   background: #ccdfff;
 }
 
-span {
+label {
   padding: 10px 0px;
   display: inline-block;
   float: left;
@@ -91,7 +91,7 @@ p {
 }
 
 form {
-  padding: 20px 0 70px 0;
+  padding: 40px 0 70px 0;
 }
 
 .hidden-content {
@@ -152,6 +152,7 @@ form {
 }
 
 .select-container {
+  padding: 20px 0;
   display: block;
 }
 

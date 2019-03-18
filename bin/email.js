@@ -85,5 +85,5 @@ sendEmails = async () => {
 })
 }
 
-sendEmails()
+sendEmails();
 

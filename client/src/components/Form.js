@@ -62,7 +62,7 @@ class Form extends Component {
               body: JSON.stringify({ key, type })
             })
             .then(this.handleErrors)
-            .then((res) => {
+            .then(() => {
               this.updateTimeout(`Mailing preferences for ${email} have been updated.`);
             })
           }
@@ -79,7 +79,7 @@ class Form extends Component {
             body: JSON.stringify({ key, type })
           })
           .then(this.handleErrors)
-          .then((res) => {
+          .then(() => {
             this.updateTimeout(`Welcome back to the mailing list, ${email}!`);
           })
         }
@@ -93,7 +93,7 @@ class Form extends Component {
           body: JSON.stringify({ email, type })
         })
         .then(this.handleErrors)
-        .then((res) => {
+        .then(() => {
           this.updateTimeout(`${email} has been added to the mailing list!`);
         })
       }      
@@ -113,7 +113,7 @@ class Form extends Component {
             </select>
             <span className="select-text">&nbsp;GIF everyday.</span>
           </div>
-          <span className="clearfix">Email Address</span>
+          <label className="clearfix" htmlFor="email">Email Address</label>
           <input id="email" type="email" name="email" value={this.state.email} onChange={this.handleChange}/>
           <br/>
           <button className="clearfix" disabled={!this.state.email}>Submit</button>

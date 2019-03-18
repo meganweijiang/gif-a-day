@@ -2,12 +2,13 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
 const app = express();
-const port = process.env.PORT || 5000;
 const handlebars = require('handlebars');
 const templateNew = './templates/new.html';
 const util =  require('./utility/util');
 const firebase = require('./utility/firebase');
 const emailer = require('./utility/emailer');
+
+const port = process.env.PORT || 5000;
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -18,11 +19,12 @@ require('dotenv').config();
 // LRU cache
 let cache = [];
 
+// Get current cache
 app.get('/api/cache', (req, res) => {
-  console.log("LRU cache is now: ", cache);
   return res.send(cache);
 })
 
+// Add new gif to cache
 app.post('/api/cache', (req, res) => {
   const gif = req.body.url;
   if (cache.length <= parseInt(process.env.CACHE_MAX)) {
@@ -53,7 +55,7 @@ app.get('/api/exists/:email', (req, res) => {
   })
 });
 
-// Add new email
+// Add new email address to database and send first email
 app.post('/api/add', (req, res) => {
   const type = req.body.type;
   const parsedEmail = req.body.email.toLowerCase();
@@ -83,17 +85,16 @@ app.post('/api/add', (req, res) => {
         subject: 'Welcome to GIF a Day!',
         html: htmlToSend
       };
-      emailer.transporter.sendMail(mailOptions, function(error, info){
-        if (error) {
-          console.log(error);
-        } else {
-          console.log('Email sent: ' + info.response);
+      emailer.transporter.sendMail(mailOptions, (err, info) => {
+        if (err){
+          return res.status(400).send(err);
         }
-      })
+        console.log('Message sent: ' + info.response);
+      });
     })
   })
   .then(() => {
-    return res.send(true)
+    return res.status(200).send();
   })
   .catch(err => {
     return res.status(400).send(err);
@@ -109,7 +110,7 @@ app.post('/api/update', (req, res) => {
     firebase.database.ref(`emails/${req.body.key}/type`).set(req.body.type)
   })
   .then(() => {
-    return res.send(true);
+    return res.status(200).send();
   })
   .catch(err => {
     return res.status(400).send(err);
@@ -121,7 +122,7 @@ app.post('/api/unsubscribe', (req, res) => {
   console.log(`Unsubscribing ${req.body.key}`)
   firebase.database.ref(`emails/${req.body.key}/active`).set(0)
   .then(() => {
-    return res.send(true)
+    return res.status(200).send();
   })
   .catch(err => {
     return res.status(400).send(err);
@@ -133,7 +134,7 @@ app.post('/api/decrypt', (req, res) => {
   console.log("Decrypting value");
   try {
     const str = util.decrypt(req.body.id);
-    return res.send({ email: str })
+    return res.send({ email: str });
   } catch (err) {
     return res.status(400).send(err);
   }

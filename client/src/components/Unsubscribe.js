@@ -85,7 +85,7 @@ class Unsubscribe extends Component {
             </header>
             <Content isHome={false} />
             <form onSubmit={this.onSubmit}>
-              <span className="clearfix">Email Address</span>
+              <label className="clearfix" htmlFor="email">Email Address</label>
               <input id="email" type="email" name="email" value={this.state.email} onChange={this.handleChange}/>
               <br/>
               <button className="clearfix" disabled={!this.state.email}>Submit</button>
