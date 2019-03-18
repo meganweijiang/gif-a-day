@@ -21,7 +21,7 @@ let cache = [];
 
 // Get current cache
 app.get('/api/cache', (req, res) => {
-  return res.send(cache);
+  return res.status(200).send(cache);
 })
 
 // Add new gif to cache
@@ -35,7 +35,7 @@ app.post('/api/cache', (req, res) => {
     cache.push(gif);
   }
   console.log("LRU cache is now: ", cache);
-  return res.send(cache);
+  return res.status(200).send(cache);
 })
 
 // Check if email exists in Firebase
@@ -48,7 +48,7 @@ app.get('/api/exists/:email', (req, res) => {
       return res.send(snapshot.val());
     }
     console.log('Email does not exist');
-    return res.send(false);
+    return res.status(200).send(false);
   })
   .catch(err => {
     return res.status(400).send(err);
