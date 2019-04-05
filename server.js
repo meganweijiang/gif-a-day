@@ -39,19 +39,20 @@ app.post('/api/cache', (req, res) => {
 })
 
 // Check if email exists in Firebase
-app.get('/api/exists/:email', (req, res) => {
+app.get('/api/:email', (req, res) => {
   console.log('Checking if email exists');
   parsedEmail = req.params.email.toLowerCase();
   firebase.database.ref('emails').orderByChild('email').equalTo(parsedEmail).once("value", snapshot => {
     if (snapshot.val() !== null) {
       console.log('Email exists!');
-      return res.send(snapshot.val());
+      return res.status(200).send(snapshot.val());
     }
     console.log('Email does not exist');
-    return res.status(200).send(false);
+    res.statusMessage = "Email address not found.";
+    return res.status(400).end();
   })
   .catch(err => {
-    return res.status(400).send(err);
+    return res.status(500).send(err);
   })
 });
 
@@ -61,43 +62,45 @@ app.post('/api/add', (req, res) => {
   const parsedEmail = req.body.email.toLowerCase();
   const encrypted = util.encrypt(parsedEmail);
   const unsubLink = `${process.env.UNSUB_LINK}/${encrypted}`;
+  let gif = "";
   firebase.database.ref('emails').push({
     email: parsedEmail,
     active: 1,
-    type: req.body.type
+    type
   })
   .then(() => {
-    return util.getGif(type);
+    gif = util.getGif(type);
+    return; 
   })
-  .then((gif) => {
-    util.readTemplate(templateNew)
-    .then((res) => {
-      const email = handlebars.compile(res);
-      const replacements = {
-        gif,
-        unsubLink,
-        type
+  .then(() => {
+    return util.readTemplate(templateNew)
+  })
+  .then((res) => {
+    const email = handlebars.compile(res);
+    const replacements = {
+      gif,
+      unsubLink,
+      type
+    }
+    const htmlToSend = email(replacements);
+    const mailOptions = {
+      from: `GIF a Day <${process.env.EMAIL_ADDRESS}>`,
+      to: parsedEmail,
+      subject: 'Welcome to GIF a Day!',
+      html: htmlToSend
+    };
+    emailer.transporter.sendMail(mailOptions, (err, info) => {
+      if (err) {
+        return res.status(500).send(err);
       }
-      const htmlToSend = email(replacements);
-      const mailOptions = {
-        from: `GIF a Day <${process.env.EMAIL_ADDRESS}>`,
-        to: parsedEmail,
-        subject: 'Welcome to GIF a Day!',
-        html: htmlToSend
-      };
-      emailer.transporter.sendMail(mailOptions, (err, info) => {
-        if (err){
-          return res.status(400).send(err);
-        }
-        console.log('Message sent: ' + info.response);
-      });
-    })
+      console.log('Message sent: ' + info.response);
+    });
   })
   .then(() => {
     return res.status(200).send();
   })
   .catch(err => {
-    return res.status(400).send(err);
+    return res.status(500).send(err);
   });
 });
 
@@ -105,27 +108,24 @@ app.post('/api/add', (req, res) => {
 // Update existing email preferences and make active
 app.post('/api/update', (req, res) => {
   console.log(`Updating email preferences for ${req.body.key}`);
-  firebase.database.ref(`emails/${req.body.key}/active`).set(1)
-  .then(() => {
-    firebase.database.ref(`emails/${req.body.key}/type`).set(req.body.type)
-  })
+  firebase.database.ref(`emails/${req.body.key}`).update({ active: 1, type: req.body.type })
   .then(() => {
     return res.status(200).send();
   })
   .catch(err => {
-    return res.status(400).send(err);
+    return res.status(500).send(err);
   });
 });
 
 // Unsubscribe by setting active to 0 
 app.post('/api/unsubscribe', (req, res) => { 
-  console.log(`Unsubscribing ${req.body.key}`)
+  console.log(`Unsubscribing ${req.body.key}`);
   firebase.database.ref(`emails/${req.body.key}/active`).set(0)
-  .then(() => {
-    return res.status(200).send();
+  .then((snapshot) => {
+    return res.status(200).send(snapshot);
   })
   .catch(err => {
-    return res.status(400).send(err);
+    return res.status(500).send(err);
   });
 });
 
@@ -136,7 +136,7 @@ app.post('/api/decrypt', (req, res) => {
     const str = util.decrypt(req.body.id);
     return res.send({ email: str });
   } catch (err) {
-    return res.status(400).send(err);
+    return res.status(500).send(err);
   }
 });
 

@@ -32,7 +32,7 @@ class Form extends Component {
   }
 
   handleErrors = (res) => {
-    if (!res.ok) {
+    if (!res.ok && res.status !== 400) {
       this.updateTimeout(`An error has occurred.`);
       throw Error(res.statusText);    
     }
@@ -44,14 +44,28 @@ class Form extends Component {
     this.setState({ loading: true, message: '' });
     const email = this.state.email;
     const type = this.state.type;
-    fetch(`/api/exists/${email}`)
+    fetch(`/api/${email}`)
     .then(this.handleErrors)
-    .then((res) => res.json())
-    .then((exists) => {
-      if (exists) {
-        const key = Object.keys(exists)[0];
-        const active = exists[key].active;
-        const currentType = exists[key].type;
+    .then((res) => {
+      if (res.status === 400) {
+        fetch('/api/add', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, type })
+        })
+        .then(this.handleErrors)
+        .then(() => {
+          this.updateTimeout(`${email} has been added to the mailing list!`);
+        })
+        return;
+      }
+      return res.json()
+      .then((res) => {
+        const key = Object.keys(res)[0];
+        const active = res[key].active;
+        const currentType = res[key].type;
         if (active === 1) {
           if (currentType !== type) {
             fetch('/api/update', {
@@ -83,20 +97,7 @@ class Form extends Component {
             this.updateTimeout(`Welcome back to the mailing list, ${email}!`);
           })
         }
-      }
-      else {
-        fetch('/api/add', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ email, type })
-        })
-        .then(this.handleErrors)
-        .then(() => {
-          this.updateTimeout(`${email} has been added to the mailing list!`);
-        })
-      }      
+      })
     })
     .catch((error) => console.log(error));
   };

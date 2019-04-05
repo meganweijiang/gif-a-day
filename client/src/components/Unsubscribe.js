@@ -28,7 +28,7 @@ class Unsubscribe extends Component {
   }
 
   handleErrors = (res) => {
-    if (!res.ok) {
+    if (!res.ok && res.status !== 400) {
       this.updateTimeout(`An error has occurred.`);
       throw Error(res.statusText);    
     }
@@ -44,13 +44,17 @@ class Unsubscribe extends Component {
     e.preventDefault();
     this.setState({ loading: true, message: '' });
     const email = this.state.email;
-    fetch(`/api/exists/${email}`)
+    fetch(`/api/${email}`)
     .then(this.handleErrors)
-    .then((res) => res.json())
-    .then((exists) => {
-      if (exists) {
-        let key = Object.keys(exists)[0];
-        let active = exists[key].active;
+    .then((res) => {
+      if (res.status === 400) {
+        this.updateTimeout(`${email} does not exist on the mailing list.`);
+        return;
+      }
+      return res.json()
+      .then((res) => {
+        let key = Object.keys(res)[0];
+        let active = res[key].active;
         if (active) {
           fetch(`/api/unsubscribe`, {
             method: 'POST',
@@ -67,10 +71,7 @@ class Unsubscribe extends Component {
         else {
           this.updateTimeout(`${email} does not exist on the mailing list.`);
         }
-      }
-      else {
-        this.updateTimeout(`${email} does not exist on the mailing list.`);
-      }     
+      })
     })
     .catch((error) => console.log(error));
   };
