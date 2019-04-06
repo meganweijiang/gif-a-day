@@ -40,7 +40,8 @@ class Content extends Component {
         { this.props.isHome ? 
           (<p>Love cats or dogs? Sign up for the mailing list and get a cat or dog GIF sent to you daily at {this.state.time}.</p>) 
           : 
-          (<p>We're sad to see you go! The furbabies will be waiting for your return &#9785;</p>) }
+          (<p>We're sad to see you go! The furbabies will be waiting for your return &#9785;</p>) 
+        }
       </div>
     );
   }

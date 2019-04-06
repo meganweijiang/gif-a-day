@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import Content from './Content';
-import HiddenContent from './HiddenContent';
+import Form from './Form';
 
 class Unsubscribe extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      email: this.props.directEmail,
+      email: this.props.directEmail || '',
       message: '',
       timeout: null,
       loading: false
@@ -16,7 +16,7 @@ class Unsubscribe extends Component {
 
   componentWillUnmount = () => {
     window.clearTimeout(this.state.timeout);
-  }
+  };
 
   updateTimeout = (message) => {
     this.setState({ email: '', message, loading: false });
@@ -25,7 +25,7 @@ class Unsubscribe extends Component {
       this.setState({ message: '' });
     }, 3000)
     this.setState({ timeout });
-  }
+  };
 
   handleErrors = (res) => {
     if (!res.ok && res.status !== 400) {
@@ -33,14 +33,14 @@ class Unsubscribe extends Component {
       throw Error(res.statusText);    
     }
     return res;
-  }
+  };
 
   handleChange = (e) => {
     const prop = e.target.id;
     this.setState({ [prop]: e.target.value })
-  }
+  };
 
-  onSubmit = async e => {
+  handleSubmit = async e => {
     e.preventDefault();
     this.setState({ loading: true, message: '' });
     const email = this.state.email;
@@ -85,13 +85,15 @@ class Unsubscribe extends Component {
               <h1>Unsubscribe</h1>
             </header>
             <Content isHome={false} />
-            <form onSubmit={this.onSubmit}>
-              <label className="clearfix" htmlFor="email">Email Address</label>
-              <input id="email" type="email" name="email" value={this.state.email} onChange={this.handleChange}/>
-              <br/>
-              <button className="clearfix" disabled={!this.state.email}>Submit</button>
-            </form>
-            <HiddenContent message={this.state.message} loading={this.state.loading} />
+            <Form 
+              isHome={false}
+              handleSubmit={this.handleSubmit}
+              handleChange={this.handleChange}
+              email={this.state.email}  
+              message={this.state.message}
+              timeout={this.state.timeout}
+              loading={this.state.loading}
+            />
             <Link className='go-home' to='/'>&#8592; Go Home</Link>
           </div>
         </div>
