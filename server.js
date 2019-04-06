@@ -22,7 +22,7 @@ let cache = [];
 // Get current cache
 app.get('/api/cache', (req, res) => {
   return res.status(200).send(cache);
-})
+});
 
 // Add new gif to cache
 app.post('/api/cache', (req, res) => {
@@ -36,7 +36,7 @@ app.post('/api/cache', (req, res) => {
   }
   console.log("LRU cache is now: ", cache);
   return res.status(200).send(cache);
-})
+});
 
 // Check if email exists in Firebase
 app.get('/api/:email', (req, res) => {
@@ -47,9 +47,7 @@ app.get('/api/:email', (req, res) => {
       console.log('Email exists!');
       return res.status(200).send(snapshot.val());
     }
-    console.log('Email does not exist');
-    res.statusMessage = "Email address not found.";
-    return res.status(400).end();
+    return res.status(400).send({ message: 'Email address not found' });
   })
   .catch(err => {
     return res.status(500).send(err);
@@ -62,42 +60,40 @@ app.post('/api/add', (req, res) => {
   const parsedEmail = req.body.email.toLowerCase();
   const encrypted = util.encrypt(parsedEmail);
   const unsubLink = `${process.env.UNSUB_LINK}/${encrypted}`;
-  let gif = "";
   firebase.database.ref('emails').push({
     email: parsedEmail,
     active: 1,
     type
   })
   .then(() => {
-    gif = util.getGif(type);
-    return; 
+    return util.getGif(type);
   })
-  .then(() => {
+  .then((gif) => {
     return util.readTemplate(templateNew)
-  })
-  .then((res) => {
-    const email = handlebars.compile(res);
-    const replacements = {
-      gif,
-      unsubLink,
-      type
-    }
-    const htmlToSend = email(replacements);
-    const mailOptions = {
-      from: `GIF a Day <${process.env.EMAIL_ADDRESS}>`,
-      to: parsedEmail,
-      subject: 'Welcome to GIF a Day!',
-      html: htmlToSend
-    };
-    emailer.transporter.sendMail(mailOptions, (err, info) => {
-      if (err) {
-        return res.status(500).send(err);
+    .then((res) => {
+      const email = handlebars.compile(res);
+      const replacements = {
+        gif,
+        unsubLink,
+        type
       }
-      console.log('Message sent: ' + info.response);
-    });
+      const htmlToSend = email(replacements);
+      const mailOptions = {
+        from: `GIF a Day <${process.env.EMAIL_ADDRESS}>`,
+        to: parsedEmail,
+        subject: 'Welcome to GIF a Day!',
+        html: htmlToSend
+      };
+      emailer.transporter.sendMail(mailOptions, (err, info) => {
+        if (err) {
+          return res.status(500).send(err);
+        }
+        console.log('Message sent: ' + info.response);
+      });
+    })
   })
   .then(() => {
-    return res.status(200).send();
+    return res.status(200).send({ message: 'Successfully added to mailing list.' });
   })
   .catch(err => {
     return res.status(500).send(err);
@@ -110,7 +106,7 @@ app.post('/api/update', (req, res) => {
   console.log(`Updating email preferences for ${req.body.key}`);
   firebase.database.ref(`emails/${req.body.key}`).update({ active: 1, type: req.body.type })
   .then(() => {
-    return res.status(200).send();
+    return res.status(200).send({ message: 'Successfully updated email preferences.' });
   })
   .catch(err => {
     return res.status(500).send(err);
@@ -121,8 +117,8 @@ app.post('/api/update', (req, res) => {
 app.post('/api/unsubscribe', (req, res) => { 
   console.log(`Unsubscribing ${req.body.key}`);
   firebase.database.ref(`emails/${req.body.key}/active`).set(0)
-  .then((snapshot) => {
-    return res.status(200).send(snapshot);
+  .then(() => {
+    return res.status(200).send({ message: 'Successfully unsubscribed.' });
   })
   .catch(err => {
     return res.status(500).send(err);
