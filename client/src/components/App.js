@@ -36,7 +36,7 @@ class App extends Component {
 
   handleErrors = (res) => {
     if (!res.ok && res.status !== 400) {
-      this.updateTimeout(`An error has occurred.`);
+      this.updateTimeout('An error has occurred.');
       throw Error(res.statusText);    
     }
     return res;

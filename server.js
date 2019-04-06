@@ -78,19 +78,19 @@ app.post('/api/add', (req, res) => {
         type
       }
       const htmlToSend = email(replacements);
-      const mailOptions = {
+      return mailOptions = {
         from: `GIF a Day <${process.env.EMAIL_ADDRESS}>`,
         to: parsedEmail,
         subject: 'Welcome to GIF a Day!',
         html: htmlToSend
       };
-      emailer.transporter.sendMail(mailOptions, (err, info) => {
-        if (err) {
-          return res.status(500).send(err);
-        }
-        console.log('Message sent: ' + info.response);
-      });
     })
+    .then((mailOptions) => {
+      return emailer.transporter.sendMail(mailOptions);
+    })
+    .then((res) => {
+      return console.log(res);
+    });
   })
   .then(() => {
     return res.status(200).send({ message: 'Successfully added to mailing list.' });

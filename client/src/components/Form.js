@@ -1,6 +1,12 @@
-import React, { Component } from 'react';
+import React from 'react';
 import HiddenContent from './HiddenContent';
 import SubmitButton from './SubmitButton';
+import Input from './Input';
+
+const validateEmail = (email) => {
+  var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  return re.test(String(email).toLowerCase());
+}
 
 const Form = (props) => (
   <div>
@@ -16,9 +22,15 @@ const Form = (props) => (
           <span className="select-text">&nbsp;GIF everyday.</span>
         </div>)
       }
-      <label className="clearfix" htmlFor="email">Email Address</label>
-      <input id="email" type="email" name="email" value={props.email} onChange={props.handleChange}/>
-      <SubmitButton handleSubmit={props.handleSubmit} email={props.email} />
+      <Input
+        handleChange={props.handleChange}
+        email={props.email}
+      />
+      <SubmitButton 
+        handleSubmit={props.handleSubmit} 
+        validateEmail={validateEmail}
+        email={props.email} 
+      />
     </form>
     <HiddenContent message={props.message} loading={props.loading} />
   </div>

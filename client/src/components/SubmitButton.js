@@ -1,7 +1,10 @@
 import React from 'react';
 
 const SubmitButton = (props) => (
-  <button onClick={props.handleSubmit} className="clearfix" disabled={!props.email}>Submit</button>
+  <div class="submit-button clearfix">
+    { !props.validateEmail(props.email) && props.email !== '' && <div className="invalid">Please enter a valid email address.</div> }
+    <button onClick={props.handleSubmit} disabled={!props.validateEmail(props.email)}>Submit</button>
+  </div>
 )
 
 export default SubmitButton;
