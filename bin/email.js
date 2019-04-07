@@ -35,6 +35,7 @@ getGifs = async (keys) => {
     gifs[item] = gif;
   }
 }
+
 sendEmails = async () => {  
   await database.ref('options').once("value", snapshot => {
     snapshot.forEach(option => {

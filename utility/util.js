@@ -46,18 +46,18 @@ getGif = async (type) => {
         url = '';
       }
       if (!!url) {
-        return url
+        return url;
       }
       while (!!url == false && attempts <= 5) {
         console.log('Retrying to get GIF');
         attempts += 1;
         callGiphyApi(type)
         .then(response => {
-          url = response
+          url = response;
           if (url) {
-            return url
+            return url;
           }
-        })
+        });
       }
       reject('Failed to get GIF');
     })
@@ -75,7 +75,7 @@ getGif = async (type) => {
       .then(cache => {
         console.log("LRU cache is now: ", cache);
       })
-      return url
+      return url;
     })
     .then(url => {
       resolve(url);

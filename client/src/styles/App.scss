@@ -18,8 +18,12 @@ $red: #fc5d5d;
 }
 
 .outer {
-  padding: 20px;
   max-width: 600px;
+  width: 100%;
+}
+
+.container {
+  padding: 20px;
 }
 
 .clearfix::after {
@@ -81,6 +85,7 @@ select {
   }
 
   .invalid {
+    max-width: 50%;
     display: inline-block;
     float: left;
     text-align: left;
