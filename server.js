@@ -17,6 +17,14 @@ app.use(express.static(path.join(__dirname, 'client/build')));
 
 require('dotenv').config();
 
+// Delete cache
+app.delete('/api/cache', (req, res) => {
+  cache.deleteCache()
+  .then(() => {
+    return res.status(200).send('Cache has been deleted.');
+  })
+})
+
 // Get current cache
 app.get('/api/cache', (req, res) => {
   cache.getCache()

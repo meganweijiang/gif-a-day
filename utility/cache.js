@@ -47,8 +47,21 @@ popCache = () => {
   }); 
 };
 
+deleteCache = () => {
+  return new Promise((resolve, reject) => {
+    client.del('cache', (err, reply) => {
+      if (err) {
+        reject(err);
+      }
+      console.log(`Cache has been deleted.`);
+      resolve(reply);
+    });
+  }); 
+};
+
 module.exports = { 
   getCache,
   addToCache,
-  popCache
+  popCache,
+  deleteCache
 };
