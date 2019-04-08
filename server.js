@@ -29,10 +29,9 @@ app.delete('/api/cache', (req, res) => {
 app.get('/api/cache', (req, res) => {
   cache.getCache()
   .then((currentCache) => {
-    console.log(currentCache);
     return res.status(200).send(currentCache);
   })
-  .catch(err => {
+  .catch((err) => {
     return res.status(500).send(err);
   });
 });
@@ -57,7 +56,7 @@ app.post('/api/cache', async (req, res) => {
   .then((newCache) => {
     return res.status(200).send(newCache);
   })
-  .catch(err => {
+  .catch((err) => {
     return res.status(500).send(err);
   });
 });
@@ -73,7 +72,7 @@ app.get('/api/:email', (req, res) => {
     }
     return res.status(400).send({ message: 'Email address not found' });
   })
-  .catch(err => {
+  .catch((err) => {
     return res.status(500).send(err);
   })
 });
@@ -110,16 +109,16 @@ app.post('/api/add', (req, res) => {
       };
     })
     .then((mailOptions) => {
-      return emailer.transporter.sendMail(mailOptions);
+      return emailer.sendEmail(mailOptions, 1);
     })
     .then((info) => {
-      return console.log(info.response);
+      return console.log(info);
     });
   })
   .then(() => {
     return res.status(200).send({ message: 'Successfully added to mailing list.' });
   })
-  .catch(err => {
+  .catch((err) => {
     return res.status(500).send(err);
   });
 });
@@ -132,7 +131,7 @@ app.post('/api/update', (req, res) => {
   .then(() => {
     return res.status(200).send({ message: 'Successfully updated email preferences.' });
   })
-  .catch(err => {
+  .catch((err) => {
     return res.status(500).send(err);
   });
 });
@@ -144,7 +143,7 @@ app.post('/api/unsubscribe', (req, res) => {
   .then(() => {
     return res.status(200).send({ message: 'Successfully unsubscribed.' });
   })
-  .catch(err => {
+  .catch((err) => {
     return res.status(500).send(err);
   });
 });

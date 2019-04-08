@@ -17,7 +17,7 @@ getCache = () => {
       if (err) {
         reject(err);
       }
-      console.log(`Cache is now ${reply}.`);
+      console.log(`The cache is: ${reply}.`);
       resolve(reply);
     });
   }); 

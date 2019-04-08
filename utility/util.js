@@ -16,16 +16,34 @@ readTemplate = (path) => {
   }); 
 };
 
-callGiphyApi = (type) => {
+callGiphyApi = (type, attempt) => {
+  let gif = '';
   return new Promise((resolve, reject) => {
+    if (attempt > 5) {
+      reject('Too many retries. Failed to get GIF.');
+    }
+    console.log(`Attempt ${attempt} to get GIF.`);
     fetch(`https://api.giphy.com/v1/gifs/random?tag=${type}&api_key=${process.env.GIPHY_API_KEY}`)
-    .then(data => {
+    .then((data) => {
       return data.json();
     })
-    .then(body => {
-      resolve(body.data.images.downsized.url);
+    .then((body) => {
+      gif = body.data.images.downsized.url;
+      return;
     })
-    .catch(err => {
+    .then(() => {
+      return fetch(process.env.CACHE_ENDPOINT);
+    })
+    .then((res) => {
+      return res.json();
+    }) 
+    .then((currentCache) => {
+      if (currentCache.includes(gif)) {
+        resolve(callGiphyApi(type, attempt + 1));
+      }
+      resolve(gif);
+    })
+    .catch((err) => {
       reject(err);
     });
   });
@@ -37,42 +55,27 @@ getGif = async (type) => {
   let currentCache = await fetch(process.env.CACHE_ENDPOINT);
   currentCache = await currentCache.json();
   return new Promise((resolve, reject) => {
-    callGiphyApi(type)
-    .then(url => {
-      if (currentCache.includes(url)) {
-        console.log(`Trying again to get GIF.`)
-        callGiphyApi(type)
-        .then(url => {
-          if (!currentCache.includes(url)) {
-            return url;
-          } else {
-            throw Error('Unable to retrieve GIF.');
-          }
-        });
-      } else {
-        return url;
-      }
-    })
-    .then(url => {
+    callGiphyApi(type, 1)
+    .then((url) => {
       fetch(process.env.CACHE_ENDPOINT, {
-        method: 'POST', // or 'PUT'
-        body: JSON.stringify({ url }), // data can be `string` or {object}!
+        method: 'POST',
+        body: JSON.stringify({ url }),
         headers:{
           'Content-Type': 'application/json'
         }
       })
-      .then(cache => {
+      .then((cache) => {
         return cache.json();
       })
-      .then(cache => {
+      .then((cache) => {
         console.log("LRU cache is now: ", cache);
       })
       return url;
     })
-    .then(url => {
+    .then((url) => {
       resolve(url);
     })
-    .catch(err => {
+    .catch((err) => {
       reject(err);
     });
   });
