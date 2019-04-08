@@ -11,3 +11,4 @@ Subscribe to mailing list and choose between daily cat or dog GIFs.
 * Express server
 * React
 * GIPHY API
+* Redis

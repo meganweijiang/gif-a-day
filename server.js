@@ -7,6 +7,7 @@ const templateNew = './templates/new.html';
 const util =  require('./utility/util');
 const firebase = require('./utility/firebase');
 const emailer = require('./utility/emailer');
+const cache = require('./utility/cache');
 
 const port = process.env.PORT || 5000;
 
@@ -16,26 +17,41 @@ app.use(express.static(path.join(__dirname, 'client/build')));
 
 require('dotenv').config();
 
-// LRU cache
-let cache = [];
-
 // Get current cache
 app.get('/api/cache', (req, res) => {
-  return res.status(200).send(cache);
+  cache.getCache()
+  .then((currentCache) => {
+    console.log(currentCache);
+    return res.status(200).send(currentCache);
+  })
+  .catch(err => {
+    return res.status(500).send(err);
+  });
 });
 
 // Add new gif to cache
-app.post('/api/cache', (req, res) => {
+app.post('/api/cache', async (req, res) => {
   const gif = req.body.url;
-  if (cache.length <= parseInt(process.env.CACHE_MAX)) {
-    cache.push(gif);
-  }
-  else {
-    cache.shift();
-    cache.push(gif);
-  }
-  console.log("LRU cache is now: ", cache);
-  return res.status(200).send(cache);
+  cache.getCache()
+  .then((currentCache) => {
+    const length = currentCache.length;
+    if (length <= parseInt(process.env.CACHE_MAX)) {
+      return cache.addToCache(gif);
+    }
+    cache.popCache()
+    .then(() => {
+      return cache.addToCache(gif);
+    });
+  })
+  .then(() => {
+    return cache.getCache();
+  })
+  .then((newCache) => {
+    return res.status(200).send(newCache);
+  })
+  .catch(err => {
+    return res.status(500).send(err);
+  });
 });
 
 // Check if email exists in Firebase
@@ -88,8 +104,8 @@ app.post('/api/add', (req, res) => {
     .then((mailOptions) => {
       return emailer.transporter.sendMail(mailOptions);
     })
-    .then((res) => {
-      return console.log(res);
+    .then((info) => {
+      return console.log(info.response);
     });
   })
   .then(() => {

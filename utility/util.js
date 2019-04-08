@@ -13,8 +13,8 @@ readTemplate = (path) => {
         resolve(html);
       }
     });
-  }) 
-}
+  }); 
+};
 
 callGiphyApi = (type) => {
   return new Promise((resolve, reject) => {
@@ -27,39 +27,31 @@ callGiphyApi = (type) => {
     })
     .catch(err => {
       reject(err);
-    })
-  })
-}
+    });
+  });
+};
 
 // Get GIF from GIPHY
 getGif = async (type) => {
-  let url = '';
-  let attempts = 1;
   console.log(`Getting GIF for ${type}`);
-  let cache = await fetch(process.env.CACHE_ENDPOINT);
-  cache = await cache.json();
+  let currentCache = await fetch(process.env.CACHE_ENDPOINT);
+  currentCache = await currentCache.json();
   return new Promise((resolve, reject) => {
     callGiphyApi(type)
-    .then(response => {
-      url = response;
-      if (cache.includes(url)) {
-        url = '';
-      }
-      if (!!url) {
-        return url;
-      }
-      while (!!url == false && attempts <= 5) {
-        console.log('Retrying to get GIF');
-        attempts += 1;
+    .then(url => {
+      if (currentCache.includes(url)) {
+        console.log(`Trying again to get GIF.`)
         callGiphyApi(type)
-        .then(response => {
-          url = response;
-          if (url) {
+        .then(url => {
+          if (!currentCache.includes(url)) {
             return url;
+          } else {
+            throw Error('Unable to retrieve GIF.');
           }
         });
+      } else {
+        return url;
       }
-      reject('Failed to get GIF');
     })
     .then(url => {
       fetch(process.env.CACHE_ENDPOINT, {
@@ -83,24 +75,24 @@ getGif = async (type) => {
     .catch(err => {
       reject(err);
     });
-  })
-}
+  });
+};
 
 // Encrypt a string
 encrypt = (id) => {
   const key = crypto.createCipher('aes-128-cbc', process.env.CRYPTO_PW);
   return key.update(id, 'utf8', 'hex') + key.final('hex');
-}
+};
 
 // Decrypt a string
 decrypt = (id) => {
   const key = crypto.createDecipher('aes-128-cbc', process.env.CRYPTO_PW);
   return key.update(id, 'hex', 'utf8') + key.final('utf8');
-}
+};
 
 module.exports = {
   readTemplate,
   getGif,
   encrypt,
   decrypt
-}
+};

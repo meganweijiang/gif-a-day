@@ -1,8 +1,8 @@
 const handlebars = require('handlebars');
-const templateDaily = '../templates/daily.html';
-const util =  require('../utility/util');
 const firebase = require('firebase');
 const nodemailer = require('nodemailer');
+const templateDaily = '../templates/daily.html';
+const util =  require('../utility/util');
 
 require('dotenv').config({ path: '../.env' });
 
@@ -22,6 +22,7 @@ const config = {
   storageBucket: process.env.STORAGE_BUCKET,
   messagingSenderId: process.env.MESSAGING_SENDER_ID
 };
+
 firebase.initializeApp(config);
 
 const database = firebase.database();
@@ -42,7 +43,9 @@ sendEmails = async () => {
       keys.push(option.key);
     })
   });
+
   await getGifs(keys);
+
   util.readTemplate(templateDaily)
   .then((res) => {
     database.ref('emails').orderByChild('active').equalTo(1).once("value", snapshot => {
@@ -74,17 +77,17 @@ sendEmails = async () => {
           } else {
             console.log('Email sent: ' + info.response);
           }
-        })
-      }) 
+        });
+      }); 
     }) 
-  .then(() => {
-    firebase.database().goOffline();
-  })      
-  .catch((err) => {
-    throw err;
-  })
-})
-}
+    .then(() => {
+      firebase.database().goOffline();
+    })      
+    .catch((err) => {
+      throw err;
+    });
+  });
+};
 
 sendEmails();
 

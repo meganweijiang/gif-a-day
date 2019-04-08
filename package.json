@@ -16,7 +16,8 @@
     "firebase": "^5.8.1",
     "handlebars": "^4.0.12",
     "node-sass": "^4.11.0",
-    "nodemailer": "^5.1.1"
+    "nodemailer": "^5.1.1",
+    "redis": "^2.8.0"
   },
   "devDependencies": {
     "concurrently": "^4.0.1",

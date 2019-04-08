@@ -12,7 +12,7 @@ class About extends Component {
             </header>
             <p>This page was created by <a href="https://github.com/meganweijiang">Megan Weijiang</a>.</p>
             <br/>
-            <p>Built with React, Node.js, Firebase, and the GIPHY API.</p>
+            <p>Built with React, Node.js, Firebase, the GIPHY API, and Redis.</p>
             <p>Emailing is done with Nodemailer and is scheduled as a Cron job on a Heroku server.</p>
             <br/>
             <Link className='go-home' to='/'>&#8592; Go Home</Link>
