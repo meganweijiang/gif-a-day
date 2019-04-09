@@ -17,9 +17,9 @@ readTemplate = (path) => {
 };
 
 callGiphyApi = (type, attempt) => {
-  let gif = '';
   return new Promise((resolve, reject) => {
-    if (attempt > 5) {
+    let gif = '';
+    if (attempt > process.env.MAX_ATTEMPTS) {
       reject('Too many retries. Failed to get GIF.');
     }
     console.log(`Attempt ${attempt} to get GIF.`);
@@ -52,8 +52,6 @@ callGiphyApi = (type, attempt) => {
 // Get GIF from GIPHY
 getGif = async (type) => {
   console.log(`Getting GIF for ${type}`);
-  let currentCache = await fetch(process.env.CACHE_ENDPOINT);
-  currentCache = await currentCache.json();
   return new Promise((resolve, reject) => {
     callGiphyApi(type, 1)
     .then((url) => {
@@ -68,7 +66,7 @@ getGif = async (type) => {
         return cache.json();
       })
       .then((cache) => {
-        console.log("LRU cache is now: ", cache);
+        return console.log("LRU cache is now: ", cache);
       })
       return url;
     })

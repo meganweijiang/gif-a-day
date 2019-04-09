@@ -14,15 +14,14 @@ const transporter = nodemailer.createTransport({
 
 sendEmail = (config, attempt) => {
   return new Promise((resolve, reject) => {
-    if (attempt > 5) {
+    if (attempt > process.env.MAX_ATTEMPTS) {
       reject('Failed to send email. Too many retries.');
     }
     transporter.sendMail(config, function(error, info){
       if (error) {
         resolve(sendEmail(config, attempt + 1));
       } else {
-        console.log(`Email sent to ${config.to}.`);
-        resolve('Email sent: ' + info.response);
+        resolve(`Email sent to ${config.to}.`);
       }
     });
   });
