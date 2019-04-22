@@ -42,13 +42,12 @@ app.post('/api/cache', async (req, res) => {
   cache.getCache()
   .then((currentCache) => {
     const length = currentCache.length;
-    if (length <= parseInt(process.env.CACHE_MAX)) {
-      return cache.addToCache(gif);
+    if (length > parseInt(process.env.CACHE_MAX)) {
+      return cache.popCache();
     }
-    cache.popCache()
-    .then(() => {
-      return cache.addToCache(gif);
-    });
+  })
+  .then(() => {
+    return cache.addToCache(gif);
   })
   .then(() => {
     return cache.getCache();
@@ -83,37 +82,31 @@ app.post('/api/add', (req, res) => {
   const parsedEmail = req.body.email.toLowerCase();
   const encrypted = util.encrypt(parsedEmail);
   const unsubLink = `${process.env.UNSUB_LINK}/${encrypted}`;
+
   firebase.database.ref('emails').push({
     email: parsedEmail,
     active: 1,
     type
   })
-  .then(() => {
-    return util.getGif(type);
+  .then(async () => {
+    const template = await util.readTemplate(templateNew);
+    const gif = await util.getGif(type);
+    const email = handlebars.compile(template);
+    const replacements = {
+      gif,
+      unsubLink,
+      type
+    };
+    const htmlToSend = email(replacements);
+    return mailOptions = {
+      from: `GIF a Day <${process.env.EMAIL_ADDRESS}>`,
+      to: parsedEmail,
+      subject: 'Welcome to GIF a Day!',
+      html: htmlToSend
+    };
   })
-  .then((gif) => {
-    return util.readTemplate(templateNew)
-    .then((res) => {
-      const email = handlebars.compile(res);
-      const replacements = {
-        gif,
-        unsubLink,
-        type
-      }
-      const htmlToSend = email(replacements);
-      return mailOptions = {
-        from: `GIF a Day <${process.env.EMAIL_ADDRESS}>`,
-        to: parsedEmail,
-        subject: 'Welcome to GIF a Day!',
-        html: htmlToSend
-      };
-    })
-    .then((mailOptions) => {
-      return emailer.sendEmail(mailOptions, 1);
-    })
-    .then((info) => {
-      return console.log(info);
-    });
+  .then((mailOptions) => {
+    return emailer.sendEmail(mailOptions, 1);
   })
   .then(() => {
     return res.status(200).send({ message: 'Successfully added to mailing list.' });
@@ -122,7 +115,6 @@ app.post('/api/add', (req, res) => {
     return res.status(500).send(err);
   });
 });
-
 
 // Update existing email preferences and make active
 app.post('/api/update', (req, res) => {

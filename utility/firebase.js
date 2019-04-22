@@ -16,7 +16,19 @@ firebase.initializeApp(config);
 
 const database = firebase.database();
 
+getActiveUsers = () => {
+  return new Promise((resolve, reject) => {
+    database.ref('emails').orderByChild('active').equalTo(1).once("value", snapshot => {
+      resolve(snapshot); 
+    })
+    .catch((err) => {
+      reject(err);
+    });
+  });
+};
+
 module.exports = { 
   firebase, 
-  database 
+  database,
+  getActiveUsers 
 };

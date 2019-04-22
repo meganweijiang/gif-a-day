@@ -21,6 +21,7 @@ sendEmail = (config, attempt) => {
       if (error) {
         resolve(sendEmail(config, attempt + 1));
       } else {
+        console.log(`Email sent to ${config.to}.`);
         resolve(`Email sent to ${config.to}.`);
       }
     });
