@@ -94,7 +94,8 @@ class Unsubscribe extends Component {
               timeout={this.state.timeout}
               loading={this.state.loading}
             />
-            <Link className='go-home' to='/'>&#8592; Go Home</Link>
+            <p className="go-home">Looking to sign up or change your mailing preferences?</p>
+            <Link className="go-home" to="/">&#8592; Go Home</Link>
           </div>
         </div>
         <Link className="about" to="/about">About &#8594;</Link>

@@ -22,8 +22,8 @@ app.delete('/api/cache', (req, res) => {
   cache.deleteCache()
   .then(() => {
     return res.status(200).send('Cache has been deleted.');
-  })
-})
+  });
+});
 
 // Get current cache
 app.get('/api/cache', (req, res) => {
@@ -73,7 +73,7 @@ app.get('/api/:email', (req, res) => {
   })
   .catch((err) => {
     return res.status(500).send(err);
-  })
+  });
 });
 
 // Add new email address to database and send first email
