@@ -35,7 +35,7 @@ class App extends Component {
   };
 
   handleErrors = (res) => {
-    if (!res.ok && res.status !== 400) {
+    if (!res.ok ) {
       this.updateTimeout('An error has occurred.');
       throw Error(res.statusText);    
     }
@@ -50,7 +50,10 @@ class App extends Component {
     fetch(`/api/${email}`)
     .then(this.handleErrors)
     .then((res) => {
-      if (res.status === 400) {
+      return res.json();
+    })
+    .then((res) => {
+      if (!res) {
         fetch('/api/add', {
           method: 'POST',
           headers: {
@@ -64,8 +67,7 @@ class App extends Component {
         })
         return;
       }
-      return res.json()
-      .then((res) => {
+      else {
         const key = Object.keys(res)[0];
         const active = res[key].active;
         const currentType = res[key].type;
@@ -100,7 +102,7 @@ class App extends Component {
             this.updateTimeout(`Welcome back to the mailing list, ${email}!`);
           })
         }
-      })
+      }
     })
     .catch((error) => console.log(error));
   };

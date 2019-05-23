@@ -69,7 +69,7 @@ app.get('/api/:email', (req, res) => {
       console.log('Email exists!');
       return res.status(200).send(snapshot.val());
     }
-    return res.status(400).send({ message: 'Email address not found' });
+    return res.status(200).send(false);
   })
   .catch((err) => {
     return res.status(500).send(err);
