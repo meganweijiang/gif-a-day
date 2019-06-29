@@ -1,8 +1,8 @@
 // Firebase setup
 
-const firebase = require('firebase');
+const firebase = require("firebase")
 
-require('dotenv').config();
+require("dotenv").config()
 
 const config = {
   apiKey: process.env.API_KEY,
@@ -11,24 +11,28 @@ const config = {
   projectId: process.env.PROJECT_ID,
   storageBucket: process.env.STORAGE_BUCKET,
   messagingSenderId: process.env.MESSAGING_SENDER_ID
-};
-firebase.initializeApp(config);
+}
+firebase.initializeApp(config)
 
-const database = firebase.database();
+const database = firebase.database()
 
 getActiveUsers = () => {
   return new Promise((resolve, reject) => {
-    database.ref('emails').orderByChild('active').equalTo(1).once("value", snapshot => {
-      resolve(snapshot); 
-    })
-    .catch((err) => {
-      reject(err);
-    });
-  });
-};
+    database
+      .ref("emails")
+      .orderByChild("active")
+      .equalTo(1)
+      .once("value", snapshot => {
+        resolve(snapshot)
+      })
+      .catch(err => {
+        reject(err)
+      })
+  })
+}
 
-module.exports = { 
-  firebase, 
+module.exports = {
+  firebase,
   database,
-  getActiveUsers 
-};
+  getActiveUsers
+}

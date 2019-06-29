@@ -1,10 +1,10 @@
-import React from 'react';
-import { BrowserRouter, Route, Switch } from 'react-router-dom';
-import App from './App';
-import Unsubscribe from './Unsubscribe';
-import DirectUnsubscribe from './DirectUnsubscribe';
-import NotFoundPage from './NotFoundPage';
-import About from './About';
+import React from "react"
+import { BrowserRouter, Route, Switch } from "react-router-dom"
+import App from "./App"
+import Unsubscribe from "./Unsubscribe"
+import DirectUnsubscribe from "./DirectUnsubscribe"
+import NotFoundPage from "./NotFoundPage"
+import About from "./About"
 
 const Router = () => (
   <BrowserRouter>
@@ -18,6 +18,6 @@ const Router = () => (
       </Switch>
     </div>
   </BrowserRouter>
-);
+)
 
-export default Router;
+export default Router

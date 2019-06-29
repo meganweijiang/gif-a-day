@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
+import React, { Component } from "react"
+import { Link } from "react-router-dom"
 
 class About extends Component {
   render() {
@@ -10,17 +10,28 @@ class About extends Component {
             <header className="App-header">
               <h1>About</h1>
             </header>
-            <p>This page was created by <a href="https://github.com/meganweijiang">Megan Weijiang</a>.</p>
-            <br/>
-            <p>Built with React, Node.js, Firebase DB, the GIPHY API, and Redis cache.</p>
-            <p>Emailing is done with Nodemailer and is scheduled as a Cron job on a Heroku server.</p>
-            <br/>
-            <Link className='go-home' to='/'>&#8592; Go Home</Link>
+            <p>
+              This page was created by{" "}
+              <a href="https://github.com/meganweijiang">Megan Weijiang</a>.
+            </p>
+            <br />
+            <p>
+              Built with React, Node.js, Firebase DB, the GIPHY API, and Redis
+              cache.
+            </p>
+            <p>
+              Emailing is done with Nodemailer and is scheduled as a Cron job on
+              a Heroku server.
+            </p>
+            <br />
+            <Link className="go-home" to="/">
+              &#8592; Go Home
+            </Link>
           </div>
         </div>
       </div>
-    );
+    )
   }
 }
 
-export default About;
+export default About

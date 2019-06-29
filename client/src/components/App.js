@@ -1,111 +1,112 @@
-import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
-import '../styles/App.scss';
-import Form from './Form';
-import Content from './Content';
+import React, { Component } from "react"
+import { Link } from "react-router-dom"
+import "../styles/App.scss"
+import Form from "./Form"
+import Content from "./Content"
 
 class App extends Component {
   constructor(props) {
-    super(props);
+    super(props)
     this.state = {
-      email: '',
-      type: 'cat',
-      message: '',
+      email: "",
+      type: "cat",
+      message: "",
       timeout: null,
       loading: false
-    };
-  };
+    }
+  }
 
   componentWillUnmount = () => {
-    window.clearTimeout(this.state.timeout);
-  };
+    window.clearTimeout(this.state.timeout)
+  }
 
-  updateTimeout = (message) => {
-    this.setState({ email: '', message, loading: false });
-    window.clearTimeout(this.state.timeout);
+  updateTimeout = message => {
+    this.setState({ email: "", message, loading: false })
+    window.clearTimeout(this.state.timeout)
     let timeout = window.setTimeout(() => {
-      this.setState({ message: '' });
+      this.setState({ message: "" })
     }, 3000)
-    this.setState({ timeout });
-  };
+    this.setState({ timeout })
+  }
 
-  handleChange = (e) => {
-    const prop = e.target.id;
+  handleChange = e => {
+    const prop = e.target.id
     this.setState({ [prop]: e.target.value })
-  };
+  }
 
-  handleErrors = (res) => {
-    if (!res.ok ) {
-      this.updateTimeout('An error has occurred.');
-      throw Error(res.statusText);    
+  handleErrors = res => {
+    if (!res.ok) {
+      this.updateTimeout("An error has occurred.")
+      throw Error(res.statusText)
     }
-    return res;
-  };
+    return res
+  }
 
-  handleSubmit = (e) => {
-    e.preventDefault();
-    this.setState({ loading: true, message: '' });
-    const email = this.state.email;
-    const type = this.state.type;
+  handleSubmit = e => {
+    e.preventDefault()
+    this.setState({ loading: true, message: "" })
+    const email = this.state.email
+    const type = this.state.type
     fetch(`/api/${email}`)
-    .then(this.handleErrors)
-    .then((res) => {
-      return res.json();
-    })
-    .then((res) => {
-      if (!res) {
-        fetch('/api/add', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ email, type })
-        })
-        .then(this.handleErrors)
-        .then(() => {
-          this.updateTimeout(`${email} has been added to the mailing list!`);
-        })
-        return;
-      }
-      else {
-        const key = Object.keys(res)[0];
-        const active = res[key].active;
-        const currentType = res[key].type;
-        if (active === 1) {
-          if (currentType !== type) {
-            fetch('/api/update', {
-              method: 'POST',
+      .then(this.handleErrors)
+      .then(res => {
+        return res.json()
+      })
+      .then(res => {
+        if (!res) {
+          fetch("/api/add", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ email, type })
+          })
+            .then(this.handleErrors)
+            .then(() => {
+              this.updateTimeout(`${email} has been added to the mailing list!`)
+            })
+          return
+        } else {
+          const key = Object.keys(res)[0]
+          const active = res[key].active
+          const currentType = res[key].type
+          if (active === 1) {
+            if (currentType !== type) {
+              fetch("/api/update", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ key, type })
+              })
+                .then(this.handleErrors)
+                .then(() => {
+                  this.updateTimeout(
+                    `Mailing preferences for ${email} have been updated.`
+                  )
+                })
+            } else {
+              this.updateTimeout(`${email} is already on the mailing list.`)
+            }
+          } else {
+            fetch("/api/update", {
+              method: "POST",
               headers: {
-                'Content-Type': 'application/json',
+                "Content-Type": "application/json"
               },
               body: JSON.stringify({ key, type })
             })
-            .then(this.handleErrors)
-            .then(() => {
-              this.updateTimeout(`Mailing preferences for ${email} have been updated.`);
-            })
-          }
-          else {
-            this.updateTimeout(`${email} is already on the mailing list.`);     
+              .then(this.handleErrors)
+              .then(() => {
+                this.updateTimeout(
+                  `Welcome back to the mailing list, ${email}!`
+                )
+              })
           }
         }
-        else {
-          fetch('/api/update', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ key, type })
-          })
-          .then(this.handleErrors)
-          .then(() => {
-            this.updateTimeout(`Welcome back to the mailing list, ${email}!`);
-          })
-        }
-      }
-    })
-    .catch((error) => console.log(error));
-  };
+      })
+      .catch(error => console.log(error))
+  }
 
   render() {
     return (
@@ -113,25 +114,29 @@ class App extends Component {
         <div className="outer">
           <div className="container">
             <header className="App-header">
-            <h1>GIF a Day</h1>
+              <h1>GIF a Day</h1>
             </header>
             <Content isHome={true} />
-            <Form 
+            <Form
               isHome={true}
               handleSubmit={this.handleSubmit}
               handleChange={this.handleChange}
-              email={this.state.email}  
+              email={this.state.email}
               message={this.state.message}
               timeout={this.state.timeout}
               loading={this.state.loading}
             />
-            <p className="unsub">Need to <Link to="/unsubscribe">unsubscribe</Link>?</p>
+            <p className="unsub">
+              Need to <Link to="/unsubscribe">unsubscribe</Link>?
+            </p>
           </div>
         </div>
-        <Link className="about" to="/about">About &#8594;</Link>
+        <Link className="about" to="/about">
+          About &#8594;
+        </Link>
       </div>
-    );
+    )
   }
 }
 
-export default App;
+export default App

@@ -1,80 +1,78 @@
-import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
-import Content from './Content';
-import Form from './Form';
+import React, { Component } from "react"
+import { Link } from "react-router-dom"
+import Content from "./Content"
+import Form from "./Form"
 
 class Unsubscribe extends Component {
   constructor(props) {
-    super(props);
+    super(props)
     this.state = {
-      email: this.props.directEmail || '',
-      message: '',
+      email: this.props.directEmail || "",
+      message: "",
       timeout: null,
       loading: false
-    };
-  };
+    }
+  }
 
   componentWillUnmount = () => {
-    window.clearTimeout(this.state.timeout);
-  };
+    window.clearTimeout(this.state.timeout)
+  }
 
-  updateTimeout = (message) => {
-    this.setState({ email: '', message, loading: false });
-    window.clearTimeout(this.state.timeout);
+  updateTimeout = message => {
+    this.setState({ email: "", message, loading: false })
+    window.clearTimeout(this.state.timeout)
     let timeout = window.setTimeout(() => {
-      this.setState({ message: '' });
+      this.setState({ message: "" })
     }, 3000)
-    this.setState({ timeout });
-  };
+    this.setState({ timeout })
+  }
 
-  handleErrors = (res) => {
+  handleErrors = res => {
     if (!res.ok && res.status !== 400) {
-      this.updateTimeout(`An error has occurred.`);
-      throw Error(res.statusText);    
+      this.updateTimeout(`An error has occurred.`)
+      throw Error(res.statusText)
     }
-    return res;
-  };
+    return res
+  }
 
-  handleChange = (e) => {
-    const prop = e.target.id;
+  handleChange = e => {
+    const prop = e.target.id
     this.setState({ [prop]: e.target.value })
-  };
+  }
 
   handleSubmit = async e => {
-    e.preventDefault();
-    this.setState({ loading: true, message: '' });
-    const email = this.state.email;
+    e.preventDefault()
+    this.setState({ loading: true, message: "" })
+    const email = this.state.email
     fetch(`/api/${email}`)
-    .then(this.handleErrors)
-    .then((res) => {
-      if (res.status === 400) {
-        this.updateTimeout(`${email} does not exist on the mailing list.`);
-        return;
-      }
-      return res.json()
-      .then((res) => {
-        let key = Object.keys(res)[0];
-        let active = res[key].active;
-        if (active) {
-          fetch(`/api/unsubscribe`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ key })
-          })
-          .then(this.handleErrors)
-          .then(() => {
-            this.updateTimeout(`${email} has been unsubscribed.`);
-          })
+      .then(this.handleErrors)
+      .then(res => {
+        if (res.status === 400) {
+          this.updateTimeout(`${email} does not exist on the mailing list.`)
+          return
         }
-        else {
-          this.updateTimeout(`${email} does not exist on the mailing list.`);
-        }
+        return res.json().then(res => {
+          let key = Object.keys(res)[0]
+          let active = res[key].active
+          if (active) {
+            fetch(`/api/unsubscribe`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({ key })
+            })
+              .then(this.handleErrors)
+              .then(() => {
+                this.updateTimeout(`${email} has been unsubscribed.`)
+              })
+          } else {
+            this.updateTimeout(`${email} does not exist on the mailing list.`)
+          }
+        })
       })
-    })
-    .catch((error) => console.log(error));
-  };
+      .catch(error => console.log(error))
+  }
 
   render() {
     return (
@@ -85,23 +83,29 @@ class Unsubscribe extends Component {
               <h1>Unsubscribe</h1>
             </header>
             <Content isHome={false} />
-            <Form 
+            <Form
               isHome={false}
               handleSubmit={this.handleSubmit}
               handleChange={this.handleChange}
-              email={this.state.email}  
+              email={this.state.email}
               message={this.state.message}
               timeout={this.state.timeout}
               loading={this.state.loading}
             />
-            <p className="go-home">Looking to sign up or change your mailing preferences?</p>
-            <Link className="go-home" to="/">&#8592; Go Home</Link>
+            <p className="go-home">
+              Looking to sign up or change your mailing preferences?
+            </p>
+            <Link className="go-home" to="/">
+              &#8592; Go Home
+            </Link>
           </div>
         </div>
-        <Link className="about" to="/about">About &#8594;</Link>
+        <Link className="about" to="/about">
+          About &#8594;
+        </Link>
       </div>
-    );
+    )
   }
 }
 
-export default Unsubscribe;
+export default Unsubscribe
