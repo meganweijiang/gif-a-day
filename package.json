@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "scripts": {
     "client": "cd client && yarn start",
+    "redis": "redis-server",
     "server": "nodemon server.js",
-    "dev": "concurrently --kill-others-on-fail \"yarn server\" \"yarn client\"",
     "start": "node server.js",
+    "dev": "concurrently --kill-others-on-fail \"yarn server\" \"yarn client\" \"yarn redis\"",
     "heroku-postbuild": "cd client && npm install && npm install --only=dev --no-shrinkwrap && npm run build"
   },
   "dependencies": {

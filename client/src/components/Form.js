@@ -15,8 +15,11 @@ const Form = props => (
         <div className="select-container">
           <span className="select-text">I would like a&nbsp;</span>
           <select id="type" onChange={props.handleChange}>
-            <option value="cat">cat</option>
-            <option value="dog">dog</option>
+            {props.types.map((type, index) => (
+              <option key={index} value={type}>
+                {type}
+              </option>
+            ))}
           </select>
           <span className="select-text">&nbsp;GIF everyday.</span>
         </div>

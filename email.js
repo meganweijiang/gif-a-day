@@ -21,7 +21,9 @@ sendEmails = async tries => {
     .ref("options")
     .once("value", snapshot => {
       snapshot.forEach(option => {
-        keys.push(option.key)
+        if (option.val() == 1) {
+          keys.push(option.key)
+        }
       })
     })
     .then(() => {

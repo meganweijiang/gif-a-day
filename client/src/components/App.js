@@ -9,11 +9,23 @@ class App extends Component {
     super(props)
     this.state = {
       email: "",
-      type: "cat",
+      type: "",
+      types: [],
       message: "",
       timeout: null,
       loading: false
     }
+  }
+
+  componentDidMount = () => {
+    fetch(`/api/types`)
+      .then(this.handleErrors)
+      .then(res => {
+        return res.json()
+      })
+      .then(types => {
+        this.setState({ types })
+      })
   }
 
   componentWillUnmount = () => {
@@ -125,6 +137,7 @@ class App extends Component {
               message={this.state.message}
               timeout={this.state.timeout}
               loading={this.state.loading}
+              types={this.state.types}
             />
             <p className="unsub">
               Need to <Link to="/unsubscribe">unsubscribe</Link>?

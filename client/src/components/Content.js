@@ -16,7 +16,7 @@ class Content extends Component {
     this.setState({ _loaded: true })
   }
 
-  componentWillMount = () => {
+  componentDidMount = () => {
     if (!sessionStorage.getItem("timezone")) {
       const tz = jstz.determine() || "UTC"
       sessionStorage.setItem("timezone", tz.name())

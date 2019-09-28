@@ -17,6 +17,27 @@ app.use(express.static(path.join(__dirname, "client/build")))
 
 require("dotenv").config()
 
+// Get types of gifs
+app.get("/api/types", (req, res) => {
+  let keys = []
+
+  firebase.database
+    .ref("options")
+    .once("value", snapshot => {
+      snapshot.forEach(option => {
+        if (option.val() == 1) {
+          keys.push(option.key)
+        }
+      })
+    })
+    .then(() => {
+      return res.status(200).send(keys)
+    })
+    .catch(err => {
+      return res.status(500).send(err)
+    })
+})
+
 // Get current cache
 app.get("/api/cache", (req, res) => {
   cache
