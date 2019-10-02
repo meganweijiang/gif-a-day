@@ -24,7 +24,7 @@ class App extends Component {
         return res.json()
       })
       .then(types => {
-        this.setState({ types })
+        this.setState({ types, type: types[0] })
       })
   }
 
@@ -47,8 +47,8 @@ class App extends Component {
   }
 
   handleErrors = res => {
-    if (!res.ok) {
-      this.updateTimeout("An error has occurred.")
+    if (!res.ok && res.status !== 404) {
+      this.updateTimeout(`An error has occurred: ${res.statusText}`)
       throw Error(res.statusText)
     }
     return res
@@ -59,13 +59,15 @@ class App extends Component {
     this.setState({ loading: true, message: "" })
     const email = this.state.email
     const type = this.state.type
+    let status = ""
     fetch(`/api/${email}`)
       .then(this.handleErrors)
       .then(res => {
+        status = res.status
         return res.json()
       })
       .then(res => {
-        if (!res) {
+        if (status === 404) {
           fetch("/api/add", {
             method: "POST",
             headers: {
@@ -77,7 +79,6 @@ class App extends Component {
             .then(() => {
               this.updateTimeout(`${email} has been added to the mailing list!`)
             })
-          return
         } else {
           const key = Object.keys(res)[0]
           const active = res[key].active
@@ -85,7 +86,7 @@ class App extends Component {
           if (active === 1) {
             if (currentType !== type) {
               fetch("/api/update", {
-                method: "POST",
+                method: "PUT",
                 headers: {
                   "Content-Type": "application/json"
                 },
@@ -102,7 +103,7 @@ class App extends Component {
             }
           } else {
             fetch("/api/update", {
-              method: "POST",
+              method: "PUT",
               headers: {
                 "Content-Type": "application/json"
               },

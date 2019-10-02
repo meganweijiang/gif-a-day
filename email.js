@@ -33,26 +33,29 @@ sendEmails = async tries => {
       const template = await util.readTemplate(templateDaily)
       const snapshot = await firebase.getActiveUsers()
       return snapshot.forEach(email => {
-        const emailAddress = email.val().email
         const type = email.val().type
-        const encrypted = util.encrypt(emailAddress)
-        const unsubLink = `${process.env.UNSUB_LINK}/${encrypted}`
-        const gif = gifs[type]
-        const emailTemp = handlebars.compile(template)
-        const replacements = {
-          gif,
-          unsubLink,
-          type
-        }
-        const htmlToSend = emailTemp(replacements)
-        const mailOptions = {
-          from: `GIF a Day <${process.env.EMAIL_ADDRESS}>`,
-          to: emailAddress,
-          subject: `Here's your daily ${type} GIF`,
-          html: htmlToSend
-        }
 
-        emailer.sendEmail(mailOptions, 1)
+        if (keys.includes(type)) {
+          const emailAddress = email.val().email
+          const encrypted = util.encrypt(emailAddress)
+          const unsubLink = `${process.env.UNSUB_LINK}/${encrypted}`
+          const gif = gifs[type]
+          const emailTemp = handlebars.compile(template)
+          const replacements = {
+            gif,
+            unsubLink,
+            type
+          }
+          const htmlToSend = emailTemp(replacements)
+          const mailOptions = {
+            from: `GIF a Day <${process.env.EMAIL_ADDRESS}>`,
+            to: emailAddress,
+            subject: `Here's your daily ${type} GIF`,
+            html: htmlToSend
+          }
+
+          emailer.sendEmail(mailOptions, 1)
+        }
       })
     })
     .then(() => {

@@ -4,12 +4,15 @@ const path = require("path")
 const app = express()
 const handlebars = require("handlebars")
 const templateNew = "./templates/new.html"
+const templateUpdate = "./templates/update.html"
 const util = require("./utility/util")
 const firebase = require("./utility/firebase")
 const emailer = require("./utility/emailer")
 const cache = require("./utility/cache")
 
 const port = process.env.PORT || 5000
+
+const unsubLink = process.env.UNSUB_LINK
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
@@ -88,7 +91,7 @@ app.get("/api/:email", (req, res) => {
         console.log("Email exists!")
         return res.status(200).send(snapshot.val())
       }
-      return res.status(200).send(false)
+      return res.status(404).send(false)
     })
     .catch(err => {
       return res.status(500).send(err)
@@ -100,7 +103,7 @@ app.post("/api/add", (req, res) => {
   const type = req.body.type
   const parsedEmail = req.body.email.toLowerCase()
   const encrypted = util.encrypt(parsedEmail)
-  const unsubLink = `${process.env.UNSUB_LINK}/${encrypted}`
+  const unsub = `${unsubLink}/${encrypted}`
 
   firebase.database
     .ref("emails")
@@ -115,7 +118,7 @@ app.post("/api/add", (req, res) => {
       const email = handlebars.compile(template)
       const replacements = {
         gif,
-        unsubLink,
+        unsubLink: unsub,
         type
       }
       const htmlToSend = email(replacements)
@@ -139,24 +142,53 @@ app.post("/api/add", (req, res) => {
     })
 })
 
-// Update existing email preferences and make active
-app.post("/api/update", (req, res) => {
+// Update existing email preferences, make active, and send email
+app.put("/api/update", (req, res) => {
   console.log(`Updating email preferences for ${req.body.key}`)
-  firebase.database
-    .ref(`emails/${req.body.key}`)
-    .update({ active: 1, type: req.body.type })
-    .then(() => {
-      return res
-        .status(200)
-        .send({ message: "Successfully updated email preferences." })
-    })
-    .catch(err => {
-      return res.status(500).send(err)
-    })
+
+  try {
+    const type = req.body.type
+
+    firebase.database.ref(`emails/${req.body.key}`).update({ active: 1, type })
+
+    firebase.database
+      .ref(`emails/${req.body.key}/email`)
+      .once("value", async snapshot => {
+        const address = snapshot.val()
+        const template = await util.readTemplate(templateUpdate)
+        const gif = await util.getGif(type)
+        const email = handlebars.compile(template)
+        const encrypted = util.encrypt(address)
+        const unsub = `${unsubLink}/${encrypted}`
+        const replacements = {
+          gif,
+          unsubLink: unsub,
+          type
+        }
+        const htmlToSend = email(replacements)
+        mailOptions = {
+          from: `GIF a Day <${process.env.EMAIL_ADDRESS}>`,
+          to: address,
+          subject: "Your GIF a Day preferences have been updated",
+          html: htmlToSend
+        }
+        return emailer.sendEmail(mailOptions, 1)
+      })
+      .then(() => {
+        return res
+          .status(200)
+          .send({ message: "Successfully updated email preferences." })
+      })
+      .catch(err => {
+        return res.status(500).send(err)
+      })
+  } catch (err) {
+    return res.status(500).send(err)
+  }
 })
 
-// Unsubscribe by setting active to 0
-app.post("/api/unsubscribe", (req, res) => {
+// Unsubscribe
+app.put("/api/unsubscribe", (req, res) => {
   console.log(`Unsubscribing ${req.body.key}`)
   firebase.database
     .ref(`emails/${req.body.key}/active`)
@@ -169,7 +201,7 @@ app.post("/api/unsubscribe", (req, res) => {
     })
 })
 
-// Decrypt id value from URL and automatically unsubscribe
+// Decrypt email value from URL
 app.post("/api/decrypt", (req, res) => {
   console.log("Decrypting value")
   try {

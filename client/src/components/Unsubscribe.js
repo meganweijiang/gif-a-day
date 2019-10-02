@@ -28,8 +28,8 @@ class Unsubscribe extends Component {
   }
 
   handleErrors = res => {
-    if (!res.ok && res.status !== 400) {
-      this.updateTimeout(`An error has occurred.`)
+    if (!res.ok && res.status !== 404) {
+      this.updateTimeout(`An error has occurred: ${res.statusText}`)
       throw Error(res.statusText)
     }
     return res
@@ -47,16 +47,17 @@ class Unsubscribe extends Component {
     fetch(`/api/${email}`)
       .then(this.handleErrors)
       .then(res => {
-        if (res.status === 400) {
-          this.updateTimeout(`${email} does not exist on the mailing list.`)
-          return
+        if (res.status === 404) {
+          return this.updateTimeout(
+            `${email} does not exist on the mailing list.`
+          )
         }
         return res.json().then(res => {
           let key = Object.keys(res)[0]
           let active = res[key].active
           if (active) {
             fetch(`/api/unsubscribe`, {
-              method: "POST",
+              method: "PUT",
               headers: {
                 "Content-Type": "application/json"
               },
